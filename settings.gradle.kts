@@ -18,7 +18,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Essentials"
+rootProject.name = "HyperEssentials"
 include(":app")
 include(":stub")
 include(":island-sdk")

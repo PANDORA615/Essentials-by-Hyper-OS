@@ -1,4 +1,4 @@
-HSPLcom/sameerasw/essentials/island/ui/**;->**(**)**
-HSPLcom/sameerasw/essentials/island/service/**;->**(**)**
-Lcom/sameerasw/essentials/island/ui/**;
-Lcom/sameerasw/essentials/island/service/**;
+HSPLio/github/pandora615/hyperessentials/island/ui/**;->**(**)**
+HSPLio/github/pandora615/hyperessentials/island/service/**;->**(**)**
+Lio/github/pandora615/hyperessentials/island/ui/**;
+Lio/github/pandora615/hyperessentials/island/service/**;
