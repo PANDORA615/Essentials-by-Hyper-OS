@@ -11,8 +11,11 @@ jobs:
       - name: Verify APK checksum
         working-directory: downloads
         run: sha256sum --check SHA256SUMS
+      - name: Create smaller ZIP download
+        working-directory: downloads
+        run: zip -9 Hyper-Essentials-0.1.0.zip app-debug.apk SHA256SUMS
       - name: Attach APK to release
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
-        run: gh release upload v0.1.0 downloads/app-debug.apk downloads/SHA256SUMS --clobber
+        run: gh release upload v0.1.0 downloads/app-debug.apk downloads/SHA256SUMS downloads/Hyper-Essentials-0.1.0.zip --clobber
