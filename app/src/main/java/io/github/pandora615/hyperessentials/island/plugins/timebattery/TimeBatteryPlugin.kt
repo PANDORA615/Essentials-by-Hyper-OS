@@ -43,6 +43,7 @@ class TimeBatteryPlugin : BaseIslandPlugin() {
     override val id = "time_battery"
 
     override val settingKeys = setOf(
+        "hyper_clock_style", "hyper_clock_color", "hyper_clock_size",
         SettingsRepository.KEY_ISLAND_SHOW_TIME_BATTERY,
         SettingsRepository.KEY_ISLAND_TIME_SHOW_SECONDS,
         SettingsRepository.KEY_ISLAND_TIME_FORMAT,
@@ -269,7 +270,14 @@ class TimeBatteryPlugin : BaseIslandPlugin() {
             compact = listOf(
                 CompactCell("time") {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        RollingText(timeText)
+                        io.github.pandora615.hyperessentials.island.ui.components.IslandClock(
+                            timeText, settings.getString("hyper_clock_style", "rolling") ?: "rolling",
+                            when (settings.getString("hyper_clock_color", "adaptive")) {
+                                "white" -> Color.White
+                                "orange" -> Color(0xFFFFB68C)
+                                "mint" -> Color(0xFF9EE7CA)
+                                else -> islandTextColor()
+                            }, settings.getFloat("hyper_clock_size", 14f))
                         if (dayText.isNotEmpty()) {
                             Text(
                                 dayText,

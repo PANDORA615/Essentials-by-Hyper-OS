@@ -28,4 +28,21 @@
     <string name="hyper_shizuku_help">Start the Shizuku service first and allow Hyper Essentials in its authorized apps. Notification access is separately required for music players. MIUI may restrict shell operations; a connected binder does not guarantee every system permission.</string>
     <string name="hyper_volume_preset">Volume down · hold 2 seconds → screen off</string>
     <string name="hyper_volume_help">Requires the Hyper Essentials accessibility service. Short presses still change volume. Camera shortcuts take precedence. Disabling restores the previous binding.</string>
+    <string name="hyper_keys_waiting">Hardware fallback: waiting for volume events (Shizuku required)</string>
+    <string name="hyper_keys_receiving">Hardware volume events received</string>
+    <string name="hyper_keys_denied">Hardware input unavailable: check Shizuku permissions; firmware may require root</string>
+    <string name="hyper_clock_style">Clock appearance</string>
+    <string name="hyper_clock_rolling">Rolling</string>
+    <string name="hyper_clock_digital">Digital</string>
+    <string name="hyper_clock_mono">Monospace</string>
+    <string name="hyper_clock_bold">Bold</string>
+    <string name="hyper_clock_stacked">Two rows</string>
+    <string name="hyper_clock_analog">Analog</string>
+    <string name="hyper_clock_size">Clock size</string>
+    <string name="hyper_clock_color">Clock color</string>
+    <string name="hyper_color_adaptive">Adaptive</string>
+    <string name="hyper_color_white">White</string>
+    <string name="hyper_color_orange">Orange</string>
+    <string name="hyper_color_mint">Mint</string>
+    <string name="hyper_island_roundness">Expanded island corner radius</string>
 </resources>

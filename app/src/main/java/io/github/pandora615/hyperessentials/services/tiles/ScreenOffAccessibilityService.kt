@@ -525,6 +525,7 @@ class ScreenOffAccessibilityService :
                     AccessibilityServiceInfo.FLAG_REQUEST_FILTER_KEY_EVENTS or
                     AccessibilityServiceInfo.FLAG_RETRIEVE_INTERACTIVE_WINDOWS
             }
+        startInputEventListenerIfEnabled()
         updateOmniOverlay()
         duoOverlayHandler.restart()
         statusGlanceHandler.restart()
@@ -578,7 +579,7 @@ class ScreenOffAccessibilityService :
         appVolumeOverlayHandler.onDestroy()
         statusBarIconHandler.unregister()
         screenshotAutoCleanHandler.unregister()
-        stopInputEventListener()
+        stopInputEventListener(force = true)
         cancelPocketFlashlightTurnOff()
         if (isProximityRegistered) {
             proximitySensor?.let {
@@ -878,6 +879,8 @@ class ScreenOffAccessibilityService :
         lockscreenShortcutsHandler.onConfigurationChanged()
     }
 
+    fun isCameraForeground(): Boolean = appFlowHandler.isCameraApp(appFlowHandler.currentPackage)
+
     override fun onKeyEvent(event: KeyEvent): Boolean {
         val keyCode = event.keyCode
         val isVolumeKey =
@@ -1043,7 +1046,7 @@ class ScreenOffAccessibilityService :
         val isEnabled = prefs.getBoolean("button_remap_enabled", false)
         val useShizuku = prefs.getBoolean("button_remap_use_shizuku", false)
 
-        if (isEnabled && useShizuku) {
+        if (isEnabled && (useShizuku || prefs.getBoolean("hyper_volume_preset", false))) {
             try {
                 val intent = Intent(this, InputEventListenerService::class.java)
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
@@ -1058,7 +1061,11 @@ class ScreenOffAccessibilityService :
         }
     }
 
-    private fun stopInputEventListener() {
+    private fun stopInputEventListener(force: Boolean = false) {
+        if (!force && getSharedPreferences("essentials_prefs", MODE_PRIVATE).getBoolean("hyper_volume_preset", false)) {
+            startInputEventListenerIfEnabled()
+            return
+        }
         if (!isInputEventListenerRequested) {
             try {
                 stopService(Intent(this, InputEventListenerService::class.java))

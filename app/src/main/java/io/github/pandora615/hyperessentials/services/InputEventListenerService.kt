@@ -59,6 +59,10 @@ class InputEventListenerService : Service() {
 
     private var scope: CoroutineScope? = null
     private var detector: VolumeLongPressDetector? = null
+    private var hyperMonitor: io.github.pandora615.hyperessentials.hyperos.HyperVolumeMonitor? = null
+    private val permissionListener = Shizuku.OnRequestPermissionResultListener { _, result ->
+        if (result == android.content.pm.PackageManager.PERMISSION_GRANTED) startListening()
+    }
     private lateinit var shizukuHelper: ShizukuPermissionHelper
     private var isTorchOn = false
 
@@ -118,6 +122,7 @@ class InputEventListenerService : Service() {
             )
         }
 
+        Shizuku.addRequestPermissionResultListener(permissionListener)
         Shizuku.addBinderReceivedListenerSticky(binderReceivedListener)
         Shizuku.addBinderDeadListener(binderDeadListener)
 
@@ -138,6 +143,10 @@ class InputEventListenerService : Service() {
                 return@launch
             }
 
+            if (getSharedPreferences("essentials_prefs", MODE_PRIVATE).getBoolean("hyper_volume_preset", false)) {
+                hyperMonitor = io.github.pandora615.hyperessentials.hyperos.HyperVolumeMonitor(this@InputEventListenerService, scope!!).also { it.start() }
+                return@launch
+            }
             val devices =
                 withContext(Dispatchers.IO) {
                     InputDeviceScanner().scanForVolumeDevices()
@@ -276,6 +285,8 @@ class InputEventListenerService : Service() {
     }
 
     private fun stopListening() {
+        hyperMonitor?.stop()
+        hyperMonitor = null
         detector?.stopListening()
         detector = null
     }
@@ -299,10 +310,12 @@ class InputEventListenerService : Service() {
             stopSelf()
             return START_NOT_STICKY
         }
+        if (getSharedPreferences("essentials_prefs", MODE_PRIVATE).getBoolean("hyper_volume_preset", false) && hyperMonitor == null) startListening()
         return START_STICKY
     }
 
     override fun onDestroy() {
+        Shizuku.removeRequestPermissionResultListener(permissionListener)
         Shizuku.removeBinderReceivedListener(binderReceivedListener)
         Shizuku.removeBinderDeadListener(binderDeadListener)
         stopListening()

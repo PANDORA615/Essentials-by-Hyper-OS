@@ -4028,6 +4028,7 @@ class SettingsRepository(
     // Island
     fun isIslandEnabled(): Boolean = getBoolean(KEY_ISLAND_ENABLED, false)
     fun setIslandEnabled(enabled: Boolean) {
+        if (enabled) putBoolean(KEY_ISLAND_SUPPRESS_SYSTEM_HEADS_UP, true)
         putBoolean(KEY_ISLAND_ENABLED, enabled)
         if (isIslandSuppressSystemHeadsUpEnabled()) applyHeadsUpSuppression(enabled)
     }

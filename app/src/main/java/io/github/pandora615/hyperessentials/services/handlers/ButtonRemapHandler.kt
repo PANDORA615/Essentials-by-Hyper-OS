@@ -177,6 +177,10 @@ class ButtonRemapHandler(
             }
 
         if (finalActions.isEmpty()) return false
+        if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN && event.action == KeyEvent.ACTION_DOWN && event.repeatCount == 0) {
+            prefs.edit().putLong("hyper_native_volume_down", android.os.SystemClock.elapsedRealtime()).apply()
+        }
+
 
         if (event.action == KeyEvent.ACTION_DOWN) {
             if (event.repeatCount == 0) {

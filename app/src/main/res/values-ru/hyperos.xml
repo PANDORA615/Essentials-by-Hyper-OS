@@ -28,4 +28,21 @@
     <string name="hyper_shizuku_help">Сначала запустите службу Shizuku и разрешите доступ Hyper Essentials. Для музыкальных плееров отдельно нужен доступ к уведомлениям. MIUI может ограничивать команды shell: подключение не гарантирует выдачу всех системных разрешений.</string>
     <string name="hyper_volume_preset">Громкость вниз · удерживать 2 секунды → выключить экран</string>
     <string name="hyper_volume_help">Нужна служба специальных возможностей Hyper Essentials. Короткое нажатие меняет громкость. В камере сохраняются её действия. Отключение возвращает прежний бинд.</string>
+    <string name="hyper_keys_waiting">Резервный ввод: ожидание нажатий (нужен Shizuku)</string>
+    <string name="hyper_keys_receiving">Нажатия кнопки громкости поступают</string>
+    <string name="hyper_keys_denied">Нет доступа к вводу: проверьте Shizuku; прошивка может требовать root</string>
+    <string name="hyper_clock_style">Вид часов</string>
+    <string name="hyper_clock_rolling">Анимация</string>
+    <string name="hyper_clock_digital">Цифровые</string>
+    <string name="hyper_clock_mono">Моноширинные</string>
+    <string name="hyper_clock_bold">Жирные</string>
+    <string name="hyper_clock_stacked">Две строки</string>
+    <string name="hyper_clock_analog">Стрелочные</string>
+    <string name="hyper_clock_size">Размер часов</string>
+    <string name="hyper_clock_color">Цвет часов</string>
+    <string name="hyper_color_adaptive">Адаптивный</string>
+    <string name="hyper_color_white">Белый</string>
+    <string name="hyper_color_orange">Оранжевый</string>
+    <string name="hyper_color_mint">Мятный</string>
+    <string name="hyper_island_roundness">Скругление раскрытого острова</string>
 </resources>

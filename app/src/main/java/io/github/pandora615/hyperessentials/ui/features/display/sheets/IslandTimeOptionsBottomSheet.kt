@@ -75,6 +75,7 @@ fun IslandTimeOptionsBottomSheet(
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
+            HyperIslandCustomization()
             RoundedCardContainer(spacing = 2.dp, cornerRadius = 24.dp) {
                 val formatLabels = mapOf(
                     SettingsRepository.ISLAND_TIME_FORMAT_SYSTEM to stringResource(R.string.island_time_format_system),

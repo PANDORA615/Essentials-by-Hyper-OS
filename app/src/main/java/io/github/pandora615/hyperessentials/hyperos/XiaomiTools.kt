@@ -75,11 +75,28 @@ fun XiaomiTools() {
             Text(stringResource(R.string.hyper_shizuku_help))
         }
     }
+    LaunchedEffect(Unit) {
+        if (settings.getBoolean("hyper_volume_preset", false)) runCatching {
+            context.startForegroundService(Intent(context, io.github.pandora615.hyperessentials.services.InputEventListenerService::class.java))
+        }
+    }
     var preset by remember { mutableStateOf(settings.getBoolean("hyper_volume_preset", false)) }
     OutlinedCard(Modifier.fillMaxWidth()) {
         Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Text(stringResource(R.string.hyper_volume_preset), style = MaterialTheme.typography.titleMedium)
             Text(stringResource(R.string.hyper_volume_help))
+            var hardware by remember { mutableStateOf("waiting") }
+            LaunchedEffect(Unit) {
+                while (true) {
+                    hardware = settings.getString("hyper_hardware_status", "waiting") ?: "waiting"
+                    kotlinx.coroutines.delay(1000)
+                }
+            }
+            Text(stringResource(when (hardware) {
+                "receiving" -> R.string.hyper_keys_receiving
+                "denied" -> R.string.hyper_keys_denied
+                else -> R.string.hyper_keys_waiting
+            }))
             Switch(checked = preset, onCheckedChange = { enabled ->
                 val prefs = context.getSharedPreferences(SettingsRepository.PREFS_NAME, Context.MODE_PRIVATE)
                 val key = SettingsRepository.KEY_BUTTON_REMAP_VOL_DOWN_ACTION_ON
@@ -98,6 +115,12 @@ fun XiaomiTools() {
                         .putLong("hyper_volume_down_hold_ms", prefs.getLong("hyper_saved_hold", 500L)).apply()
                 }
                 settings.putBoolean("hyper_volume_preset", enabled)
+                if (enabled) {
+                    val intent = Intent(context, io.github.pandora615.hyperessentials.services.InputEventListenerService::class.java)
+                    runCatching { context.startForegroundService(intent) }
+                } else {
+                    context.stopService(Intent(context, io.github.pandora615.hyperessentials.services.InputEventListenerService::class.java))
+                }
                 preset = enabled
             })
         }
