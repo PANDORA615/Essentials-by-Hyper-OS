@@ -3600,4 +3600,14 @@
     <string name="diy_cts_method_title">Trigger method</string>
     <string name="diy_cts_method_accessibility">Accessibility</string>
     <string name="diy_cts_method_shizuku">Shizuku / Root</string>
+
+    <string name="hyper_heads_up_off">Standard notification banners are restored when Dynamic Island is off.</string>
+    <string name="hyper_heads_up_active">Android pop-up banners are disabled for all apps. Tray visibility is controlled separately; custom HyperOS windows may differ.</string>
+    <string name="hyper_heads_up_service">Enable the Hyper Essentials accessibility service to run Dynamic Island and replace notification banners.</string>
+    <string name="hyper_heads_up_permission">Start Shizuku and grant Hyper Essentials access, or grant WRITE_SECURE_SETTINGS. The change will apply automatically after connection.</string>
+    <string name="hyper_heads_up_failed">Android did not confirm the change. Check Shizuku access and try again.</string>
+    <string name="hyper_heads_up_restore_failed">The previous banner setting could not be restored. Reconnect Shizuku and retry.</string>
+    <string name="hyper_heads_up_retry">Apply again</string>
+    <string name="hyper_hide_tray_title">Only in Dynamic Island</string>
+    <string name="hyper_hide_tray_desc">Dismiss ordinary notifications from the shade after copying to the island. Dismissed notifications cannot be restored to the shade. Media, calls and required service notifications remain.</string>
 </resources>

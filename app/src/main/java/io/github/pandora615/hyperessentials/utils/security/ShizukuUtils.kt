@@ -68,7 +68,8 @@ object ShizukuUtils {
             try {
                 if (hasPermission()) {
                     val appCtx = io.github.pandora615.hyperessentials.EssentialsApp.context
-                    StatusBarManager.update(appCtx)
+                    StatusBarManager.reassertFlags(appCtx)
+                    io.github.pandora615.hyperessentials.hyperos.IslandHeadsUpController.sync(appCtx)
                 }
             } catch (_: Throwable) {
             }
@@ -99,6 +100,13 @@ object ShizukuUtils {
     fun initialize() {
         Shizuku.addBinderReceivedListenerSticky(binderReceivedListener)
         Shizuku.addBinderDeadListener(binderDeadListener)
+        Shizuku.addRequestPermissionResultListener { _, _ ->
+            runCatching {
+                val app = io.github.pandora615.hyperessentials.EssentialsApp.context
+                io.github.pandora615.hyperessentials.hyperos.IslandHeadsUpController.sync(app)
+                StatusBarManager.reassertFlags(app)
+            }
+        }
     }
 
     fun hasPermission(): Boolean {

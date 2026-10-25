@@ -154,7 +154,11 @@ class NotificationListener : NotificationListenerService() {
 
         fun dismissNotification(key: String) {
             try {
-                instance?.cancelNotification(key)
+                instance?.let { listener ->
+                    synchronized(listener.islandCopies) { listener.islandCopies.remove(key) }
+                    notifyAlertRemoved(key)
+                    listener.cancelNotification(key)
+                }
             } catch (_: Exception) {}
         }
 
@@ -1483,11 +1487,35 @@ class NotificationListener : NotificationListenerService() {
         }
     }
 
+    // Copies accepted by the island survive our own tray dismissal. No disk storage of message text.
+    private val islandCopies = java.util.LinkedHashMap<String, ActiveNotificationAlert>()
+
+    fun moveToIsland(alert: ActiveNotificationAlert) {
+        val settings = SettingsRepository(this)
+        if (!settings.isIslandEnabled() || !settings.getBoolean("hyper_island_hide_tray", true) ||
+            ScreenOffAccessibilityService.instance == null) return
+        val sbn = runCatching { activeNotifications?.firstOrNull { it.key == alert.key } }.getOrNull() ?: return
+        val n = sbn.notification
+        // Android requires these notifications for ongoing services, calls and media controls.
+        if (sbn.isOngoing || isMediaNotification(sbn) || CallNotificationParser.isCall(sbn) ||
+            n.flags and (Notification.FLAG_FOREGROUND_SERVICE or Notification.FLAG_NO_CLEAR) != 0 ||
+            n.category in setOf(Notification.CATEGORY_ALARM, Notification.CATEGORY_SERVICE, Notification.CATEGORY_SYSTEM)) return
+        synchronized(islandCopies) {
+            islandCopies[alert.key] = alert
+            while (islandCopies.size > 100) islandCopies.remove(islandCopies.keys.first())
+        }
+        try { cancelNotification(alert.key) } catch (_: Exception) {
+            synchronized(islandCopies) { islandCopies.remove(alert.key) }
+        }
+    }
+
     override fun onNotificationRemoved(
         sbn: StatusBarNotification,
         rankingMap: RankingMap,
         reason: Int,
     ) {
+        if (reason == REASON_LISTENER_CANCEL && synchronized(islandCopies) { islandCopies.containsKey(sbn.key) }) return
+        synchronized(islandCopies) { islandCopies.remove(sbn.key) }
         LiveUpdateSnoozer.onRemoved(sbn.key, reason)
         super.onNotificationRemoved(sbn, rankingMap, reason)
     }
@@ -1507,6 +1535,7 @@ class NotificationListener : NotificationListenerService() {
     }
 
     override fun onNotificationRemoved(sbn: StatusBarNotification) {
+        if (synchronized(islandCopies) { islandCopies.containsKey(sbn.key) }) return
         if (LiveUpdateSnoozer.isSnoozedByUs(sbn.key)) return
         NotificationRepostFilter.forget(sbn.key)
         HilightProgressTracker.onRemoved(sbn.key)
@@ -2143,7 +2172,9 @@ class NotificationListener : NotificationListenerService() {
 
     fun hubAlertsAsync(onResult: (List<ActiveNotificationAlert>) -> Unit) {
         runOffMain {
-            val alerts = safeActiveNotifications().orEmpty().mapNotNull { hubAlertOf(it, null) }.sortedByDescending { it.timestamp }
+            val live = safeActiveNotifications().orEmpty().mapNotNull { hubAlertOf(it, null) }
+            val copies = synchronized(islandCopies) { islandCopies.values.toList() }
+            val alerts = (live + copies).distinctBy { it.key }.sortedByDescending { it.timestamp }
             alertHandler.post { onResult(alerts) }
         }
     }

@@ -174,7 +174,7 @@ class NotificationsPlugin : BaseIslandPlugin() {
 
     private val timeoutRunnable = Runnable { onTimeout() }
     private val catchUpRunnable = Runnable {
-        if (ctx?.isContentSuppressed?.invoke() == true) catchUpPaused = true else endSession()
+        if (ctx?.isContentSuppressed?.invoke() == true || retainOnLockScreen()) catchUpPaused = true else endSession()
     }
 
     private val replied = HashMap<String, Long>()
@@ -318,8 +318,19 @@ class NotificationsPlugin : BaseIslandPlugin() {
             syncHub()
             return
         }
-        if (ctx?.isContentSuppressed?.invoke() == true) clearAll() else render()
+        // Screen-off hides the window, not the notification queue. Resume it on wake.
+        if (ctx?.isContentSuppressed?.invoke() == true) {
+            ctx?.mainHandler?.removeCallbacks(timeoutRunnable)
+            ctx?.mainHandler?.removeCallbacks(catchUpRunnable)
+            catchUpPaused = true
+        } else {
+            render()
+            if (alerts.isNotEmpty()) scheduleTimeout()
+        }
     }
+
+    private fun retainOnLockScreen(): Boolean =
+        !lockedOut() && (context.getSystemService(Context.KEYGUARD_SERVICE) as? KeyguardManager)?.isKeyguardLocked == true
 
     private fun passesFilters(alert: ActiveNotificationAlert): Boolean {
         if (alert.isSilent && settings.isIslandNotifSkipSilentEnabled()) return false
@@ -351,6 +362,13 @@ class NotificationsPlugin : BaseIslandPlugin() {
 
     private fun onPosted(alert: ActiveNotificationAlert) {
         val c = ctx ?: return
+        val canKeepCopy = !c.isContentSuppressed() ||
+            (context.getSystemService(Context.POWER_SERVICE) as? PowerManager)?.isInteractive == false ||
+            (context.getSystemService(Context.KEYGUARD_SERVICE) as? KeyguardManager)?.isKeyguardLocked == true
+        if (settings.isIslandShowNotificationsEnabled() && passesFilters(alert) && !lockedOut() &&
+            canKeepCopy && (!alert.hubOnly || hub())) {
+            NotificationListener.instance?.moveToIsland(alert)
+        }
         if (alert.hubOnly) {
             if (hub()) addSilently(alert)
             return
@@ -453,6 +471,18 @@ class NotificationsPlugin : BaseIslandPlugin() {
     private fun onTimeout() {
         val c = ctx ?: return
         if (pendingPopUp) return
+        if (c.isContentSuppressed()) {
+            catchUpPaused = true
+            return
+        }
+        if (retainOnLockScreen() && alerts.isNotEmpty()) {
+            if (c.focusedKey() == ITEM_KEY) c.request(PluginRequest.Collapse(ITEM_KEY))
+            autoExpanded = false
+            pinLatest()
+            catchingUp = true
+            render()
+            return
+        }
         if (showingHere() && alerts.size > 1 && !manualPick && advanceToUnseen()) {
             scheduleTimeout()
             render()

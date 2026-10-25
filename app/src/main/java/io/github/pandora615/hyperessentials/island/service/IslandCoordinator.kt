@@ -186,7 +186,7 @@ class IslandCoordinator(
                 SettingsRepository.ISLAND_SHOW_WHEN_SCREEN_ON -> isScreenOff
                 else -> isScreenOff || keyguardManager?.isKeyguardLocked == true
             } ||
-            (settings.isIslandHideOnShadeEnabled() && isShadeExpanded)
+            (settings.isIslandHideOnShadeEnabled() && isShadeExpanded && keyguardManager?.isKeyguardLocked != true)
 
     private val compactGestures = CompactGestureController(
         context = service,

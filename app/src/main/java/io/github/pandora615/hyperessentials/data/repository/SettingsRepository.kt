@@ -4034,7 +4034,7 @@ class SettingsRepository(
             if (getIslandShowWhen() == ISLAND_SHOW_WHEN_UNLOCKED) setIslandShowWhen(ISLAND_SHOW_WHEN_SCREEN_ON)
         }
         putBoolean(KEY_ISLAND_ENABLED, enabled)
-        if (isIslandSuppressSystemHeadsUpEnabled()) applyHeadsUpSuppression(enabled)
+        applyHeadsUpSuppression(enabled && isIslandSuppressSystemHeadsUpEnabled())
     }
 
     fun isIslandAutoDetectEnabled(): Boolean = getBoolean(KEY_ISLAND_USE_AUTO_DETECT, true)
@@ -4502,30 +4502,7 @@ class SettingsRepository(
     fun setIslandNotifKeepProgressEnabled(enabled: Boolean) = putBoolean(KEY_ISLAND_NOTIF_KEEP_PROGRESS, enabled)
 
     fun applyHeadsUpSuppression(requestedSuppress: Boolean = isIslandEnabled() && isIslandSuppressSystemHeadsUpEnabled()) {
-        val suppress = requestedSuppress && io.github.pandora615.hyperessentials.services.tiles.ScreenOffAccessibilityService.instance != null
-        if (suppress) io.github.pandora615.hyperessentials.utils.StatusBarManager.requestDisable(
-            context, "HyperIslandHeadsUp", setOf(io.github.pandora615.hyperessentials.utils.StatusBarManager.FLAG_NOTIFICATION_PEEK))
-        else io.github.pandora615.hyperessentials.utils.StatusBarManager.requestRestore(context, "HyperIslandHeadsUp")
-        val savedKey = "hyper_previous_heads_up"
-        val saved = prefs.getString(savedKey, null)
-        if (!suppress && saved == null) return
-        if (suppress && saved == null) {
-            val previous = runCatching { android.provider.Settings.Global.getString(context.contentResolver, "heads_up_notifications_enabled") }.getOrNull()
-            prefs.edit().putString(savedKey, previous ?: "unset").apply()
-        }
-        val target = if (suppress) "0" else saved!!
-        try {
-            android.provider.Settings.Global.putString(context.contentResolver, "heads_up_notifications_enabled", target.takeUnless { it == "unset" })
-        } catch (_: SecurityException) {
-            val command = if (target == "unset") "settings delete global heads_up_notifications_enabled"
-                else "settings put global heads_up_notifications_enabled ${target.toIntOrNull() ?: 1}"
-            io.github.pandora615.hyperessentials.utils.ShellUtils.runCommand(context, command,
-                featureName = context.getString(io.github.pandora615.hyperessentials.R.string.island_suppress_system_heads_up_title))
-        } catch (_: Exception) {}
-        if (!suppress && runCatching { android.provider.Settings.Global.getString(context.contentResolver,
-                "heads_up_notifications_enabled") }.getOrNull() == target.takeUnless { it == "unset" }) {
-            prefs.edit().remove(savedKey).apply()
-        }
+        io.github.pandora615.hyperessentials.hyperos.IslandHeadsUpController.request(context, requestedSuppress)
     }
 
     // Status Glance

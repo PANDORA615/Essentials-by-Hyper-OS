@@ -1903,7 +1903,7 @@
     <string name="diy_cts_method_accessibility">Accessibility</string>
     <string name="diy_cts_method_shizuku">Shizuku / Root</string>
     <string name="island_dynamic_hide_status_bar_title">Динамично скрывать элементы статус-бара</string>
-    <string name="island_suppress_system_heads_up_title">Скрыть системные напоминания </string>
+    <string name="island_suppress_system_heads_up_title">Убирать всплывающие уведомления</string>
     <string name="island_hide_live_updates_title">Скрыыать live updates Динамично</string>
     <string name="island_hide_icons_title">Динамично скоыыать иконки статус-бара</string>
     <string name="feat_app_volume_title">Громкость приложений</string>
@@ -1955,4 +1955,14 @@
     <string name="notification_lighting_ripple_sparkle_size_title">Размер частиц</string>
     <string name="notification_lighting_ripple_sparkle_count_title">Коливество частиц</string>
     <string name="notification_lighting_ripple_wave_size_title">Размер волны</string>
+
+    <string name="hyper_heads_up_off">Когда Dynamic Island выключен, возвращается прежняя настройка всплывающих уведомлений.</string>
+    <string name="hyper_heads_up_active">Всплывающие баннеры Android отключены для всех приложений. Показ в шторке настраивается отдельно; собственные окна HyperOS могут работать иначе.</string>
+    <string name="hyper_heads_up_service">Включите службу специальных возможностей Hyper Essentials для работы островка и замены всплывающих уведомлений.</string>
+    <string name="hyper_heads_up_permission">Запустите Shizuku и разрешите доступ Hyper Essentials либо выдайте WRITE_SECURE_SETTINGS. Настройка применится автоматически после подключения.</string>
+    <string name="hyper_heads_up_failed">Android не подтвердил изменение. Проверьте доступ Shizuku и повторите попытку.</string>
+    <string name="hyper_heads_up_restore_failed">Не удалось вернуть прежнюю настройку баннеров. Подключите Shizuku и повторите попытку.</string>
+    <string name="hyper_heads_up_retry">Применить повторно</string>
+    <string name="hyper_hide_tray_title">Только в Dynamic Island</string>
+    <string name="hyper_hide_tray_desc">Убирать обычные уведомления из шторки после передачи в островок. Вернуть удалённые уведомления в шторку нельзя. Музыка, звонки и обязательные служебные уведомления остаются.</string>
 </resources>

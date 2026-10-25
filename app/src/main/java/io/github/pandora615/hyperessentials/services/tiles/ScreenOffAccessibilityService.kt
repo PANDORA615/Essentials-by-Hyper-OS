@@ -379,6 +379,8 @@ class ScreenOffAccessibilityService :
                     when (intent?.action) {
                         Intent.ACTION_SCREEN_ON -> {
                             isScreenOn = true
+                            SettingsRepository(this@ScreenOffAccessibilityService).applyHeadsUpSuppression()
+                            io.github.pandora615.hyperessentials.utils.StatusBarManager.reassertFlags(this@ScreenOffAccessibilityService)
                             notificationLightingHandler.onScreenOn()
                             ambientGlanceHandler.dismissImmediately()
                             aodForceTurnOffHandler.removeOverlay()
@@ -534,6 +536,7 @@ class ScreenOffAccessibilityService :
         duoOverlayHandler.restart()
         statusGlanceHandler.restart()
         islandOverlayHandler.restart()
+        SettingsRepository(this).applyHeadsUpSuppression()
     }
 
     private fun updateOmniOverlay() {
@@ -603,6 +606,7 @@ class ScreenOffAccessibilityService :
         getSharedPreferences("essentials_prefs", MODE_PRIVATE)
             .unregisterOnSharedPreferenceChangeListener(preferenceChangeListener)
         instance = null
+        SettingsRepository(this).applyHeadsUpSuppression(false)
         super.onDestroy()
     }
 

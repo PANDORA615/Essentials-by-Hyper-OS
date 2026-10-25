@@ -43,6 +43,7 @@ class EssentialsApp : Application() {
         context = applicationContext
         registerActivityLifecycleCallbacks(object : ActivityLifecycleCallbacks {
             override fun onActivityResumed(activity: android.app.Activity) {
+                io.github.pandora615.hyperessentials.hyperos.IslandHeadsUpController.sync(activity)
                 if (SettingsRepository(activity).getBoolean("button_remap_enabled", false)) runCatching {
                     activity.startForegroundService(Intent(activity, io.github.pandora615.hyperessentials.services.InputEventListenerService::class.java))
                 }

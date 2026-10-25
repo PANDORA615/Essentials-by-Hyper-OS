@@ -882,14 +882,12 @@ fun IslandBehaviorSettingsUI(
                 isChecked = viewModel.isIslandSuppressSystemHeadsUp.value,
                 onCheckedChange = { checked ->
                     HapticUtil.performVirtualKeyHaptic(view)
-                    if (checked && !PermissionUtils.canWriteSecureSettings(context) && !ShellUtils.isAvailable(context)) {
-                        requestingPermissionsFor = Pair(R.string.island_suppress_system_heads_up_title, listOf("WRITE_SECURE_SETTINGS"))
-                    } else {
-                        viewModel.setIslandSuppressSystemHeadsUp(checked)
-                    }
+                    viewModel.setIslandSuppressSystemHeadsUp(checked)
                 },
                 modifier = Modifier.highlight(highlightSetting == "island_suppress_system_heads_up"),
             )
+            io.github.pandora615.hyperessentials.hyperos.IslandHeadsUpStatus()
+
 
             IconToggleItem(
                 iconRes = R.drawable.rounded_notifications_off_24,
@@ -1057,6 +1055,16 @@ fun IslandNotificationSettingsUI(
                     viewModel.setIslandShowNotifications(checked)
                 },
                 modifier = Modifier.highlight(highlightSetting == "island_show_notifications"),
+            )
+
+            val traySettings = remember { SettingsRepository(context) }
+            var hideTray by remember { mutableStateOf(traySettings.getBoolean("hyper_island_hide_tray", true)) }
+            IconToggleItem(
+                iconRes = R.drawable.rounded_notifications_off_24,
+                title = stringResource(R.string.hyper_hide_tray_title),
+                description = stringResource(R.string.hyper_hide_tray_desc),
+                isChecked = hideTray,
+                onCheckedChange = { hideTray = it; traySettings.putBoolean("hyper_island_hide_tray", it) },
             )
 
             IconToggleItem(
