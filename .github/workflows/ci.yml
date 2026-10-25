@@ -34,6 +34,7 @@ jobs:
     permissions:
       contents: write
     steps:
+      - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
         with:
           name: hyper-essentials-debug
@@ -43,4 +44,4 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
           TAG: ${{ github.ref_name }}
-        run: gh release create "$TAG" apk/*.apk --prerelease --title "Hyper Essentials $TAG (preview)" --notes 'Material 3 port for MIUI / HyperOS. Debug-signed preview. Physical Xiaomi / Redmi / POCO testing pending. See README for requirements and limitations.'
+        run: bash scripts/publish-preview.sh apk/*.apk
