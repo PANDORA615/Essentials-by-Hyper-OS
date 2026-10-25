@@ -47,7 +47,7 @@ kotlin {
 }
 
 android {
-    namespace = "com.sameerasw.essentials"
+    namespace = "io.github.pandora615.hyperessentials"
     compileSdk = 37
     compileSdkMinor = 1
 
@@ -112,11 +112,11 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.sameerasw.essentials"
+        applicationId = "io.github.pandora615.hyperessentials"
         minSdk = 26
         targetSdk = 37
-        versionCode = 70
-        versionName = "20.1"
+        versionCode = 1
+        versionName = "0.1.0"
 
         val whatsNewCounter = 8
         buildConfigField("int", "WHATS_NEW_COUNTER", whatsNewCounter.toString())

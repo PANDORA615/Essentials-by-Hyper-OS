@@ -24,22 +24,22 @@
 
 # Kotlin Reflect
 -keep class kotlin.reflect.** { *; }
--keep class com.sameerasw.essentials.domain.model.** { *; }
--keep class com.sameerasw.essentials.domain.diy.** { *; }
+-keep class io.github.pandora615.hyperessentials.domain.model.** { *; }
+-keep class io.github.pandora615.hyperessentials.domain.diy.** { *; }
 
 # Prevent over-minification of settings and registry classes
--keep class com.sameerasw.essentials.data.repository.** { *; }
--keep class com.sameerasw.essentials.domain.registry.** { *; }
+-keep class io.github.pandora615.hyperessentials.data.repository.** { *; }
+-keep class io.github.pandora615.hyperessentials.domain.registry.** { *; }
 
 # Keep IME related models and suggestion logic
--keep class com.sameerasw.essentials.ime.** { *; }
--keep class com.sameerasw.essentials.ui.ime.** { *; }
--keepclassmembers class com.sameerasw.essentials.ime.** { *; }
--keepclassmembers class com.sameerasw.essentials.ui.ime.** { *; }
+-keep class io.github.pandora615.hyperessentials.ime.** { *; }
+-keep class io.github.pandora615.hyperessentials.ui.ime.** { *; }
+-keepclassmembers class io.github.pandora615.hyperessentials.ime.** { *; }
+-keepclassmembers class io.github.pandora615.hyperessentials.ui.ime.** { *; }
 
 # Data models for Gson
--keep class com.sameerasw.essentials.data.model.** { *; }
--keepclassmembers class com.sameerasw.essentials.data.model.** { *; }
+-keep class io.github.pandora615.hyperessentials.data.model.** { *; }
+-keepclassmembers class io.github.pandora615.hyperessentials.data.model.** { *; }
 
 # Keep ViewModel constructors for reflection-based instantiation
 -keepclassmembers class * extends androidx.lifecycle.ViewModel {
@@ -56,11 +56,11 @@
 -keep class org.slf4j.** { *; }
 
 # Keep R.string class and fields for runtime translation key reflection lookup
--keep class com.sameerasw.essentials.R$string { *; }
--keepclassmembers class com.sameerasw.essentials.R$string {
+-keep class io.github.pandora615.hyperessentials.R$string { *; }
+-keepclassmembers class io.github.pandora615.hyperessentials.R$string {
     public static <fields>;
 }
--keep class com.sameerasw.essentials.domain.genai.** { *; }
--keep class com.sameerasw.essentials.appfunctions.** { *; }
+-keep class io.github.pandora615.hyperessentials.domain.genai.** { *; }
+-keep class io.github.pandora615.hyperessentials.appfunctions.** { *; }
 -keep class androidx.appfunctions.** { *; }
 

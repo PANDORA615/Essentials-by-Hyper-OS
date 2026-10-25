@@ -1,0 +1,144 @@
+package io.github.pandora615.hyperessentials.island.plugins.alarm
+
+import io.github.pandora615.hyperessentials.island.IslandTimeFormat
+import android.app.AlarmManager
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import android.text.format.DateFormat
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.ui.unit.dp
+import io.github.pandora615.hyperessentials.R
+import io.github.pandora615.hyperessentials.data.repository.SettingsRepository
+import io.github.pandora615.hyperessentials.island.model.CompactCell
+import io.github.pandora615.hyperessentials.island.model.CompactPlacement
+import io.github.pandora615.hyperessentials.island.model.IslandItem
+import io.github.pandora615.hyperessentials.island.model.IslandPriority
+import io.github.pandora615.hyperessentials.island.model.LineContent
+import io.github.pandora615.hyperessentials.island.plugins.BaseIslandPlugin
+import io.github.pandora615.hyperessentials.island.plugins.sendPendingIntent
+import io.github.pandora615.hyperessentials.island.ui.IslandTextStyles
+import io.github.pandora615.hyperessentials.island.ui.components.IslandIcon
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+
+class AlarmPlugin : BaseIslandPlugin() {
+    override val id = "alarm"
+
+    override val settingKeys = setOf(
+        SettingsRepository.KEY_ISLAND_SHOW_ALARM,
+        SettingsRepository.KEY_ISLAND_ALARM_WINDOW_HOURS,
+        SettingsRepository.KEY_ISLAND_ALARM_HIDE_TIME,
+        SettingsRepository.KEY_ISLAND_TIME_FORMAT,
+        SettingsRepository.KEY_ISLAND_TIME_LEADING_ZERO,
+        SettingsRepository.KEY_ISLAND_TIME_PERIOD,
+    )
+
+    private var registered = false
+    private val recheck = Runnable { render() }
+
+    private val receiver = object : BroadcastReceiver() {
+        override fun onReceive(c: Context?, intent: Intent?) = render()
+    }
+
+    override fun onStart() {
+        try {
+            context.registerReceiver(
+                receiver,
+                IntentFilter().apply {
+                    addAction(AlarmManager.ACTION_NEXT_ALARM_CLOCK_CHANGED)
+                    addAction(Intent.ACTION_TIME_CHANGED)
+                    addAction(Intent.ACTION_TIMEZONE_CHANGED)
+                },
+            )
+            registered = true
+        } catch (_: Exception) {
+        }
+    }
+
+    override fun onStop() {
+        ctx?.mainHandler?.removeCallbacks(recheck)
+        if (registered) {
+            try {
+                context.unregisterReceiver(receiver)
+            } catch (_: Exception) {
+            }
+            registered = false
+        }
+    }
+
+    override fun refresh() {
+        ctx ?: return
+        render()
+    }
+
+    private fun render() {
+        val c = ctx ?: return
+        c.mainHandler.removeCallbacks(recheck)
+        if (!settings.isIslandShowAlarmEnabled()) {
+            publish(null)
+            return
+        }
+        val windowMs = settings.getIslandAlarmWindowHours() * HOUR_MS
+        val info = NextAlarm.get(context)
+        val now = System.currentTimeMillis()
+        if (info == null || info.triggerTime <= now) {
+            publish(null)
+            return
+        }
+        val untilWindow = info.triggerTime - windowMs - now
+        if (untilWindow > 0) {
+            c.mainHandler.postDelayed(recheck, untilWindow + 1_000L)
+            publish(null)
+            return
+        }
+        c.mainHandler.postDelayed(recheck, info.triggerTime - now + 60_000L)
+        val shortTime = NextAlarm.format(context, info.triggerTime, withPeriod = false)
+        val fullTime = NextAlarm.format(context, info.triggerTime, withPeriod = true)
+        val hideTime = settings.getBoolean(SettingsRepository.KEY_ISLAND_ALARM_HIDE_TIME, false)
+        publish(
+            IslandItem(
+                key = ITEM_KEY,
+                priority = IslandPriority.ALARM,
+                placement = CompactPlacement.Dynamic,
+                compact = buildList {
+                    add(CompactCell("alarm.icon") { IslandIcon(R.drawable.rounded_alarm_24, size = 18.dp, tint = MaterialTheme.colorScheme.primary) })
+                    if (!hideTime) add(CompactCell("alarm.time") { Text(shortTime, style = IslandTextStyles.compact) })
+                },
+                line = LineContent(
+                    icon = { IslandIcon(R.drawable.rounded_alarm_24, tint = MaterialTheme.colorScheme.primary) },
+                    start = context.getString(R.string.island_show_alarm_title),
+                    end = if (hideTime) "" else fullTime,
+                ),
+                onOpen = { sendPendingIntent(context, info.showIntent) },
+            ),
+        )
+    }
+
+    companion object {
+        const val ITEM_KEY = "alarm"
+        private const val HOUR_MS = 3_600_000L
+    }
+}
+
+object NextAlarm {
+    fun get(context: Context): AlarmManager.AlarmClockInfo? =
+        try {
+            context.getSystemService(AlarmManager::class.java)?.nextAlarmClock
+        } catch (_: Exception) {
+            null
+        }
+
+    fun within(context: Context, hours: Int): AlarmManager.AlarmClockInfo? {
+        val info = get(context) ?: return null
+        val delta = info.triggerTime - System.currentTimeMillis()
+        return info.takeIf { delta in 0..hours * 3_600_000L }
+    }
+
+    fun format(context: Context, millis: Long, withPeriod: Boolean): String {
+        return IslandTimeFormat.format(context, SettingsRepository(context), millis, period = withPeriod)
+    }
+}

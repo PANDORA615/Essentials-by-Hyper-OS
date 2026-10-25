@@ -51,8 +51,8 @@ import android.accessibilityservice.AccessibilityService
 import android.accessibilityservice.AccessibilityServiceInfo
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityWindowInfo
-import com.sameerasw.essentials.domain.HapticFeedbackType
-import com.sameerasw.essentials.utils.HapticUtil
+import io.github.pandora615.hyperessentials.domain.HapticFeedbackType
+import io.github.pandora615.hyperessentials.utils.HapticUtil
 
 class ScreenOffAccessibilityService : AccessibilityService() {
 

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <voice-interaction-service xmlns:android="http://schemas.android.com/apk/res/android"
-    android:sessionService="com.sameerasw.essentials.services.EssentialsVoiceInteractionSessionService"
-    android:recognitionService="com.sameerasw.essentials.services.EssentialsRecognitionService"
-    android:settingsActivity="com.sameerasw.essentials.ui.activities.PixelSearchbarSettingsActivity"
+    android:sessionService="io.github.pandora615.hyperessentials.services.EssentialsVoiceInteractionSessionService"
+    android:recognitionService="io.github.pandora615.hyperessentials.services.EssentialsRecognitionService"
+    android:settingsActivity="io.github.pandora615.hyperessentials.ui.activities.PixelSearchbarSettingsActivity"
     android:supportsAssist="true"
     android:supportsLocalInteraction="true" />

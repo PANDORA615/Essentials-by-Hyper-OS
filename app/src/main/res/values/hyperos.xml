@@ -1,0 +1,24 @@
+<resources>
+    <string name="hyper_hub_title">MIUI / HyperOS setup</string>
+    <string name="hyper_back">Back</string>
+    <string name="hyper_unavailable">This settings screen is unavailable on this firmware. Open app details manually.</string>
+    <string name="hyper_device_notice">Xiaomi family detected. Available settings depend on your ROM and region.</string>
+    <string name="hyper_other_device">This device is not identified as Xiaomi, Redmi or POCO. Standard Android settings remain available.</string>
+    <string name="hyper_setup_heading">Keep your tools running</string>
+    <string name="hyper_autostart">Autostart</string>
+    <string name="hyper_autostart_help">Allow Hyper Essentials to start automatically after a reboot.</string>
+    <string name="hyper_background">Background activity</string>
+    <string name="hyper_battery_exempt">Android battery optimization is disabled. MIUI may still apply its own limits.</string>
+    <string name="hyper_background_help">Choose No restrictions in battery settings if background tools stop.</string>
+    <string name="hyper_permissions">Other permissions</string>
+    <string name="hyper_permissions_help">Review background pop-ups and lock screen permissions. Enable only what your selected tools require.</string>
+    <string name="hyper_notifications">Notifications</string>
+    <string name="hyper_notifications_help">Choose which notifications and service channels to allow.</string>
+    <string name="hyper_overlay">Display over other apps</string>
+    <string name="hyper_overlay_help">Required only for overlay features. Grant access when you use them.</string>
+    <string name="hyper_accessibility">Accessibility</string>
+    <string name="hyper_accessibility_help">Required only for tools that use accessibility. Review the service description before enabling.</string>
+    <string name="hyper_limits">Some features require Shizuku or root. Pixel-only functions are not guaranteed on MIUI or HyperOS. OEM settings may be hidden or renamed; app details opens as a fallback. This port has not yet been verified on physical Xiaomi devices.</string>
+    <string name="hyper_source">Source code and releases</string>
+    <string name="hyper_open">Open settings →</string>
+</resources>

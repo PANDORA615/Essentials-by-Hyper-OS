@@ -1,0 +1,323 @@
+/*
+ * Copyright (c) 2026 sameerasw.com
+ * License: MIT License
+ *
+ * Feature Module: Background Services & Receivers
+ * File: InputEventListenerService.kt
+ * Description: Background service component for InputEventListenerService.kt.
+ */
+
+package io.github.pandora615.hyperessentials.services
+
+import android.app.Service
+import android.content.Intent
+import android.hardware.display.DisplayManager
+import android.os.Build
+import android.os.IBinder
+import android.util.Log
+import android.view.Display
+import androidx.core.app.NotificationCompat
+import io.github.pandora615.hyperessentials.data.repository.SettingsRepository
+import io.github.pandora615.hyperessentials.domain.model.RemapSlot
+import io.github.pandora615.hyperessentials.input.InputDeviceScanner
+import io.github.pandora615.hyperessentials.input.VolumeLongPressDetector
+import io.github.pandora615.hyperessentials.input.VolumePressEvent
+import io.github.pandora615.hyperessentials.shizuku.ShizukuPermissionHelper
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import rikka.shizuku.Shizuku
+
+class InputEventListenerService : Service() {
+    companion object {
+        const val ACTION_VOLUME_LONG_PRESSED = "io.github.pandora615.hyperessentials.VOLUME_LONG_PRESSED"
+        const val EXTRA_DIRECTION = "direction"
+        const val EXTRA_DURATION_MS = "duration_ms"
+        const val ACTION_STOP = "io.github.pandora615.hyperessentials.STOP_INPUT_LISTENER"
+        private const val NOTIFICATION_ID = 4242
+    }
+
+    private fun startForegroundSafely(notification: android.app.Notification) {
+        try {
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                startForeground(
+                    NOTIFICATION_ID,
+                    notification,
+                    android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE,
+                )
+            } else {
+                startForeground(NOTIFICATION_ID, notification)
+            }
+        } catch (e: Exception) {
+            Log.e("InputEventListener", "Failed to start foreground", e)
+        }
+    }
+
+    private var scope: CoroutineScope? = null
+    private var detector: VolumeLongPressDetector? = null
+    private lateinit var shizukuHelper: ShizukuPermissionHelper
+    private var isTorchOn = false
+
+    private val binderReceivedListener =
+        Shizuku.OnBinderReceivedListener {
+            Log.d("InputEventListener", "Shizuku binder received, attempting to start listening")
+            startListening()
+        }
+
+    private val binderDeadListener =
+        Shizuku.OnBinderDeadListener {
+            Log.w("InputEventListener", "Shizuku binder died, stopping listener")
+            stopListening()
+        }
+
+    override fun onCreate() {
+        super.onCreate()
+        shizukuHelper = ShizukuPermissionHelper(this)
+        scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            val channel =
+                android.app.NotificationChannel(
+                    "service_channel",
+                    "Background Service",
+                    android.app.NotificationManager.IMPORTANCE_MIN,
+                )
+            val manager = getSystemService(android.app.NotificationManager::class.java)
+            manager.createNotificationChannel(channel)
+        }
+
+        val notification =
+            NotificationCompat
+                .Builder(this, "service_channel")
+                .setContentTitle("Volume Listener Running")
+                .setContentText("Listening for volume button long presses")
+                .setSmallIcon(android.R.drawable.star_on)
+                .setPriority(NotificationCompat.PRIORITY_MIN)
+                .build()
+        startForegroundSafely(notification)
+
+        if (!io.github.pandora615.hyperessentials.utils.DeviceUtils.isTorchAccessRestricted()) {
+            val cameraManager =
+                getSystemService(CAMERA_SERVICE) as android.hardware.camera2.CameraManager
+            cameraManager.registerTorchCallback(
+                object :
+                    android.hardware.camera2.CameraManager.TorchCallback() {
+                    override fun onTorchModeChanged(
+                        cameraId: String,
+                        enabled: Boolean,
+                    ) {
+                        super.onTorchModeChanged(cameraId, enabled)
+                        isTorchOn = enabled
+                    }
+                },
+                null,
+            )
+        }
+
+        Shizuku.addBinderReceivedListener(binderReceivedListener)
+        Shizuku.addBinderDeadListener(binderDeadListener)
+
+        scope?.launch {
+            delay(500)
+            startListening()
+        }
+    }
+
+    private fun startListening() {
+        scope?.launch {
+            stopListening()
+
+            if (!io.github.pandora615.hyperessentials.utils.ShellUtils
+                    .hasPermission(this@InputEventListenerService)
+            ) {
+                Log.e("InputEventListener", "Shell permission not granted")
+                return@launch
+            }
+
+            val devices =
+                withContext(Dispatchers.IO) {
+                    InputDeviceScanner().scanForVolumeDevices()
+                }
+
+            if (devices.isEmpty()) {
+                Log.e("InputEventListener", "No devices found")
+                getSharedPreferences("essentials_prefs", MODE_PRIVATE)
+                    .edit()
+                    .remove("shizuku_detected_device_path")
+                    .apply()
+                return@launch
+            }
+
+            val devicePath = devices.first().path
+            Log.d("InputEventListener", "Listening on device: $devicePath")
+
+            getSharedPreferences("essentials_prefs", MODE_PRIVATE)
+                .edit()
+                .putString("shizuku_detected_device_path", devicePath)
+                .apply()
+
+            val activeDetector = VolumeLongPressDetector(devicePath, 500)
+            detector = activeDetector
+
+            launch {
+                activeDetector.events.collect { event ->
+                    val powerManager =
+                        getSystemService(POWER_SERVICE) as android.os.PowerManager
+                    val isScreenInteractive =
+                        try {
+                            powerManager.isInteractive
+                        } catch (e: Exception) {
+                            false
+                        }
+                    val isAod = isAodShowing()
+
+                    if (isScreenInteractive || isAod) {
+                        return@collect
+                    }
+
+                    if (event is VolumePressEvent.LongPress) {
+                        Log.i("InputEventListener", "# LONG PRESS: ${event.direction}")
+                        sendBroadcast(
+                            Intent(ACTION_VOLUME_LONG_PRESSED).apply {
+                                putExtra(EXTRA_DIRECTION, event.direction.name)
+                                putExtra(EXTRA_DURATION_MS, event.durationMs)
+                                setPackage(packageName)
+                            },
+                        )
+                    } else if (event is VolumePressEvent.ShortPress) {
+                        if (isTorchOn) {
+                            val prefs =
+                                getSharedPreferences(
+                                    "essentials_prefs",
+                                    MODE_PRIVATE,
+                                )
+                            val isAdjustEnabled =
+                                prefs.getBoolean("flashlight_adjust_intensity_enabled", false)
+                            val isGlobalEnabled =
+                                prefs.getBoolean("flashlight_global_enabled", false)
+
+                            if (isAdjustEnabled || isGlobalEnabled) {
+                                val action =
+                                    if (event.direction == io.github.pandora615.hyperessentials.input.VolumeDirection.UP) {
+                                        "io.github.pandora615.hyperessentials.ACTION_FLASHLIGHT_INCREASE"
+                                    } else {
+                                        "io.github.pandora615.hyperessentials.ACTION_FLASHLIGHT_DECREASE"
+                                    }
+                                sendBroadcast(Intent(action).setPackage(packageName))
+                            } else {
+                                val pm =
+                                    getSystemService(POWER_SERVICE) as android.os.PowerManager
+                                val isScreenOn = pm.isInteractive
+                                val slot =
+                                    RemapSlot.forVolume(
+                                        isUp = event.direction == io.github.pandora615.hyperessentials.input.VolumeDirection.UP,
+                                        isScreenOn = isScreenOn,
+                                    )
+                                val isMapped =
+                                    SettingsRepository(this@InputEventListenerService)
+                                        .getRemapActions(slot.prefKey)
+                                        .isNotEmpty()
+                                if (isMapped) {
+                                    val am =
+                                        getSystemService(AUDIO_SERVICE) as android.media.AudioManager
+                                    val direction =
+                                        if (event.direction == io.github.pandora615.hyperessentials.input.VolumeDirection.UP) {
+                                            android.media.AudioManager.ADJUST_RAISE
+                                        } else {
+                                            android.media.AudioManager.ADJUST_LOWER
+                                        }
+                                    am.adjustSuggestedStreamVolume(
+                                        direction,
+                                        android.media.AudioManager.USE_DEFAULT_STREAM_TYPE,
+                                        android.media.AudioManager.FLAG_SHOW_UI,
+                                    )
+                                }
+                            }
+                        } else {
+                            val pm =
+                                getSystemService(POWER_SERVICE) as android.os.PowerManager
+                            val isScreenOn = pm.isInteractive
+                            val slot =
+                                RemapSlot.forVolume(
+                                    isUp = event.direction == io.github.pandora615.hyperessentials.input.VolumeDirection.UP,
+                                    isScreenOn = isScreenOn,
+                                )
+                            val isMapped =
+                                SettingsRepository(this@InputEventListenerService)
+                                    .getRemapActions(slot.prefKey)
+                                    .isNotEmpty()
+
+                            if (isMapped) {
+                                val am =
+                                    getSystemService(AUDIO_SERVICE) as android.media.AudioManager
+                                val dirKey =
+                                    if (event.direction == io.github.pandora615.hyperessentials.input.VolumeDirection.UP) {
+                                        android.media.AudioManager.ADJUST_RAISE
+                                    } else {
+                                        android.media.AudioManager.ADJUST_LOWER
+                                    }
+                                am.adjustSuggestedStreamVolume(
+                                    dirKey,
+                                    android.media.AudioManager.USE_DEFAULT_STREAM_TYPE,
+                                    android.media.AudioManager.FLAG_SHOW_UI,
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
+            activeDetector.startListening(this)
+        }
+    }
+
+    private fun stopListening() {
+        detector?.stopListening()
+        detector = null
+    }
+
+    override fun onStartCommand(
+        intent: Intent?,
+        flags: Int,
+        startId: Int,
+    ): Int {
+        // Reinforce foreground
+        val notification =
+            NotificationCompat
+                .Builder(this, "service_channel")
+                .setContentTitle("Volume Listener Running")
+                .setSmallIcon(android.R.drawable.ic_dialog_info)
+                .setOngoing(true)
+                .build()
+        startForegroundSafely(notification)
+        if (intent?.action == ACTION_STOP) {
+            stopForeground(STOP_FOREGROUND_REMOVE)
+            stopSelf()
+            return START_NOT_STICKY
+        }
+        return START_STICKY
+    }
+
+    override fun onDestroy() {
+        Shizuku.removeBinderReceivedListener(binderReceivedListener)
+        Shizuku.removeBinderDeadListener(binderDeadListener)
+        stopListening()
+        scope?.cancel()
+        super.onDestroy()
+    }
+
+    private fun isAodShowing(): Boolean =
+        try {
+            val displayManager = getSystemService(DISPLAY_SERVICE) as? DisplayManager
+            val defaultDisplay = displayManager?.getDisplay(Display.DEFAULT_DISPLAY)
+            defaultDisplay?.state == Display.STATE_DOZE || defaultDisplay?.state == Display.STATE_DOZE_SUSPEND
+        } catch (_: Exception) {
+            false
+        }
+
+    override fun onBind(intent: Intent?): IBinder? = null
+}

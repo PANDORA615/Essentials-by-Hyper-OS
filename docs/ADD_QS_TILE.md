@@ -46,14 +46,14 @@ All QS tile services are located in `app/src/main/java/com/sameerasw/essentials/
 #### Implementation Example:
 
 ```kotlin
-package com.sameerasw.essentials.services.tiles
+package io.github.pandora615.hyperessentials.services.tiles
 
 import android.Manifest
 import android.content.pm.PackageManager
 import android.graphics.drawable.Icon
 import android.service.quicksettings.Tile
-import com.sameerasw.essentials.R
-import com.sameerasw.essentials.utils.DeviceUtils
+import io.github.pandora615.hyperessentials.R
+import io.github.pandora615.hyperessentials.utils.DeviceUtils
 
 class FeatureTileService : BaseTileService() {
 

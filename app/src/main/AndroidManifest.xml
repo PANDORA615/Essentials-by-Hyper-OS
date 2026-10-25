@@ -79,17 +79,17 @@
     <uses-permission android:name="com.sameerasw.permission.ESSENTIALS_AIRSYNC_BRIDGE" />
 
     <permission-group
-        android:name="com.sameerasw.essentials.permission-group.EXTERNAL_CONTROL"
+        android:name="io.github.pandora615.hyperessentials.permission-group.EXTERNAL_CONTROL"
         android:description="@string/perm_external_control_desc"
         android:icon="@drawable/app_logo"
         android:label="@string/perm_external_control_label" />
 
     <permission
-        android:name="com.sameerasw.essentials.permission.EXTERNAL_CONTROL"
+        android:name="io.github.pandora615.hyperessentials.permission.EXTERNAL_CONTROL"
         android:description="@string/perm_external_control_desc"
         android:icon="@drawable/app_logo"
         android:label="@string/perm_external_control_label"
-        android:permissionGroup="com.sameerasw.essentials.permission-group.EXTERNAL_CONTROL"
+        android:permissionGroup="io.github.pandora615.hyperessentials.permission-group.EXTERNAL_CONTROL"
         android:protectionLevel="dangerous" />
 
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
@@ -104,6 +104,8 @@
     <uses-permission android:name="android.permission.SET_WALLPAPER" />
 
     <queries>
+        <package android:name="com.miui.securitycenter" />
+        <package android:name="com.miui.powerkeeper" />
         <package android:name="com.sameerasw.overcast" />
         <package android:name="eu.darken.porter" />
         <package android:name="com.google.android.apps.wear.companion" />
@@ -119,11 +121,13 @@
         android:enableOnBackInvokedCallback="true"
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
-        android:label="Essentials"
+        android:label="@string/app_name"
         android:localeConfig="@xml/locales_config"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Essentials">
+
+        <activity android:name=".hyperos.HyperOsActivity" android:exported="false" />
 
         <!-- Disable Sentry auto-init as it's handled manually in EssentialsApp -->
         <meta-data
@@ -133,7 +137,7 @@
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:label="Essentials"
+            android:label="@string/app_name"
             android:theme="@style/Theme.Essentials.Splash">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -167,7 +171,7 @@
             android:exported="true"
             android:icon="@mipmap/ic_launcher_legacy"
             android:roundIcon="@mipmap/ic_launcher_legacy_round"
-            android:label="Essentials"
+            android:label="@string/app_name"
             android:targetActivity=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -195,7 +199,7 @@
             android:exported="true"
             android:icon="@mipmap/ic_launcher_black"
             android:roundIcon="@mipmap/ic_launcher_black_round"
-            android:label="Essentials"
+            android:label="@string/app_name"
             android:targetActivity=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -223,7 +227,7 @@
             android:exported="true"
             android:icon="@mipmap/ic_launcher_gta"
             android:roundIcon="@mipmap/ic_launcher_gta_round"
-            android:label="Essentials"
+            android:label="@string/app_name"
             android:targetActivity=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -251,7 +255,7 @@
             android:exported="true"
             android:icon="@mipmap/ic_launcher_google"
             android:roundIcon="@mipmap/ic_launcher_google_round"
-            android:label="Essentials"
+            android:label="@string/app_name"
             android:targetActivity=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -296,7 +300,7 @@
             android:exported="false"
             android:label="@string/essential_search_label"
             android:launchMode="singleInstance"
-            android:taskAffinity="com.sameerasw.essentials.search"
+            android:taskAffinity="io.github.pandora615.hyperessentials.search"
             android:theme="@style/Theme.Essentials.WallpaperTranslucent"
             android:windowSoftInputMode="stateVisible|adjustResize" />
 
@@ -381,7 +385,7 @@
             android:icon="@drawable/rounded_mode_cool_24"
             android:label="@string/freeze_shortcut_short_label"
             android:launchMode="singleTask"
-            android:taskAffinity="com.sameerasw.essentials.freezing"
+            android:taskAffinity="io.github.pandora615.hyperessentials.freezing"
             android:theme="@style/Theme.Essentials" />
 
         <activity-alias
@@ -404,7 +408,7 @@
             android:icon="@drawable/rounded_rocket_launch_24"
             android:label="@string/action_shortcut_short_label"
             android:launchMode="singleTask"
-            android:taskAffinity="com.sameerasw.essentials.action"
+            android:taskAffinity="io.github.pandora615.hyperessentials.action"
             android:theme="@android:style/Theme.Translucent.NoTitleBar" />
 
         <activity
@@ -414,7 +418,7 @@
             android:icon="@drawable/rounded_search_24"
             android:label="@string/feat_pixel_searchbar_title"
             android:launchMode="singleTask"
-            android:taskAffinity="com.sameerasw.essentials.pixelsearchbar"
+            android:taskAffinity="io.github.pandora615.hyperessentials.pixelsearchbar"
             android:theme="@android:style/Theme.Translucent.NoTitleBar">
             <intent-filter>
                 <action android:name="android.intent.action.ASSIST" />
@@ -883,7 +887,7 @@
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
                 <action android:name="android.intent.action.CONFIGURATION_CHANGED" />
-                <action android:name="com.sameerasw.essentials.action.FAVORITES_WIDGET_UPDATE" />
+                <action android:name="io.github.pandora615.hyperessentials.action.FAVORITES_WIDGET_UPDATE" />
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"
@@ -905,7 +909,7 @@
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
                 <action android:name="android.intent.action.CONFIGURATION_CHANGED" />
-                <action android:name="com.sameerasw.essentials.action.QS_TILES_WIDGET_UPDATE" />
+                <action android:name="io.github.pandora615.hyperessentials.action.QS_TILES_WIDGET_UPDATE" />
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"
@@ -941,7 +945,7 @@
             android:name=".services.receivers.QsTileActionRouter"
             android:exported="false">
             <intent-filter>
-                <action android:name="com.sameerasw.essentials.action.TRIGGER_QS_TILE" />
+                <action android:name="io.github.pandora615.hyperessentials.action.TRIGGER_QS_TILE" />
             </intent-filter>
         </receiver>
 
@@ -1431,11 +1435,11 @@
             android:name=".services.receivers.FlashlightActionReceiver"
             android:exported="false">
             <intent-filter>
-                <action android:name="com.sameerasw.essentials.ACTION_FLASHLIGHT_INCREASE" />
-                <action android:name="com.sameerasw.essentials.ACTION_FLASHLIGHT_DECREASE" />
-                <action android:name="com.sameerasw.essentials.ACTION_FLASHLIGHT_OFF" />
-                <action android:name="com.sameerasw.essentials.ACTION_FLASHLIGHT_TOGGLE" />
-                <action android:name="com.sameerasw.essentials.ACTION_SET_INTENSITY" />
+                <action android:name="io.github.pandora615.hyperessentials.ACTION_FLASHLIGHT_INCREASE" />
+                <action android:name="io.github.pandora615.hyperessentials.ACTION_FLASHLIGHT_DECREASE" />
+                <action android:name="io.github.pandora615.hyperessentials.ACTION_FLASHLIGHT_OFF" />
+                <action android:name="io.github.pandora615.hyperessentials.ACTION_FLASHLIGHT_TOGGLE" />
+                <action android:name="io.github.pandora615.hyperessentials.ACTION_SET_INTENSITY" />
             </intent-filter>
         </receiver>
 
@@ -1513,7 +1517,7 @@
             android:exported="true"
             android:permission="com.sameerasw.permission.ESSENTIALS_AIRSYNC_BRIDGE">
             <intent-filter>
-                <action android:name="com.sameerasw.essentials.action.UPDATE_MAC_BATTERY" />
+                <action android:name="io.github.pandora615.hyperessentials.action.UPDATE_MAC_BATTERY" />
             </intent-filter>
         </receiver>
 
@@ -1559,7 +1563,7 @@
             android:name=".services.receivers.ShizukuActionReceiver"
             android:exported="false">
             <intent-filter>
-                <action android:name="com.sameerasw.essentials.ACTION_RESTART_SHIZUKU" />
+                <action android:name="io.github.pandora615.hyperessentials.ACTION_RESTART_SHIZUKU" />
             </intent-filter>
         </receiver>
 
@@ -1567,7 +1571,7 @@
             android:name=".services.receivers.DownloadUpdateReceiver"
             android:exported="false">
             <intent-filter>
-                <action android:name="com.sameerasw.essentials.ACTION_DOWNLOAD_UPDATE" />
+                <action android:name="io.github.pandora615.hyperessentials.ACTION_DOWNLOAD_UPDATE" />
             </intent-filter>
         </receiver>
 
@@ -1575,7 +1579,7 @@
             android:name=".services.automation.receivers.TimeAutomationReceiver"
             android:exported="false">
             <intent-filter>
-                <action android:name="com.sameerasw.essentials.ACTION_TIME_AUTOMATION_TRIGGER" />
+                <action android:name="io.github.pandora615.hyperessentials.ACTION_TIME_AUTOMATION_TRIGGER" />
             </intent-filter>
         </receiver>
         <receiver
@@ -1683,7 +1687,7 @@
 
             <meta-data
                 android:name="android.service.quicksettings.ACTION_QS_TILE_PREFERENCES"
-                android:value="com.sameerasw.essentials.ui.activities.QSPreferencesActivity" />
+                android:value="io.github.pandora615.hyperessentials.ui.activities.QSPreferencesActivity" />
             <meta-data
                 android:name="android.service.quicksettings.TILE_CATEGORY"
                 android:value="android.service.quicksettings.CATEGORY_UTILITIES" />
@@ -1701,7 +1705,7 @@
 
             <meta-data
                 android:name="android.service.quicksettings.ACTION_QS_TILE_PREFERENCES"
-                android:value="com.sameerasw.essentials.ui.activities.QSPreferencesActivity" />
+                android:value="io.github.pandora615.hyperessentials.ui.activities.QSPreferencesActivity" />
             <meta-data
                 android:name="android.service.quicksettings.TILE_CATEGORY"
                 android:value="android.service.quicksettings.CATEGORY_UTILITIES" />
@@ -1711,7 +1715,7 @@
             android:name=".external.ExternalControlProvider"
             android:authorities="${applicationId}.external"
             android:exported="true"
-            android:permission="com.sameerasw.essentials.permission.EXTERNAL_CONTROL" />
+            android:permission="io.github.pandora615.hyperessentials.permission.EXTERNAL_CONTROL" />
 
         <receiver
             android:name=".external.ExternalTokenActionReceiver"
@@ -1720,9 +1724,9 @@
         <receiver
             android:name=".external.ExternalActionReceiver"
             android:exported="true"
-            android:permission="com.sameerasw.essentials.permission.EXTERNAL_CONTROL">
+            android:permission="io.github.pandora615.hyperessentials.permission.EXTERNAL_CONTROL">
             <intent-filter>
-                <action android:name="com.sameerasw.essentials.action.EXTERNAL_CONTROL" />
+                <action android:name="io.github.pandora615.hyperessentials.action.EXTERNAL_CONTROL" />
             </intent-filter>
         </receiver>
 

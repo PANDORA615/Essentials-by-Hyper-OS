@@ -1,82 +1,44 @@
-name: Android CI
-
+name: Hyper Essentials Android
 on:
-  pull_request:
-    branches:
-      - develop
-      - main
-    paths:
-      - 'app/**'
-      - 'stub/**'
-      - 'gradle/**'
-      - '*.gradle.kts'
-      - 'gradle.properties'
-      - 'gradlew'
-      - 'gradlew.bat'
-      - '.github/workflows/ci.yml'
   push:
-    branches:
-      - develop
-    paths:
-      - 'app/**'
-      - 'stub/**'
-      - 'gradle/**'
-      - '*.gradle.kts'
-      - 'gradle.properties'
-      - 'gradlew'
-      - 'gradlew.bat'
-      - '.github/workflows/ci.yml'
+    branches: [main]
+    tags: ['v*']
+  pull_request:
   workflow_dispatch:
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
-
+permissions:
+  contents: read
 jobs:
   build:
-    name: Build and Test
     runs-on: ubuntu-latest
-    # Translation-only PRs are covered by a separate, faster workflow.
-    if: ${{ !contains(github.event.pull_request.labels.*.name, 'translations') }}
-    permissions:
-      contents: read
-
-    # Tune memory for GitHub Actions runner (7GB limit) to prevent OOM errors
-    env:
-      GRADLE_OPTS: "-Dorg.gradle.jvmargs=-Xmx3072m -XX:MaxMetaspaceSize=512m -Dkotlin.daemon.jvm.options=-Xmx2048m"
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
         with:
-          fetch-depth: 0
-
-      - name: Set up JDK 21
-        uses: actions/setup-java@v4
-        with:
+          distribution: temurin
           java-version: '21'
-          distribution: 'temurin'
-
-      - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v4
+      - uses: android-actions/setup-android@v3
+      - uses: gradle/actions/setup-gradle@v4
+      - run: sdkmanager 'platforms;android-37.1'
+      - run: chmod +x gradlew && ./gradlew testDebugUnitTest assembleDebug --no-daemon --stacktrace
+      - uses: actions/upload-artifact@v4
         with:
-          gradle-version: '9.5.0'
-
-      - name: Ensure Gradle Wrapper exists
-        run: |
-          if [ ! -f "gradle/wrapper/gradle-wrapper.jar" ]; then
-            gradle wrapper
-          fi
-          chmod +x gradlew
-
-      - name: Run unit tests and assemble debug APK
-        run: ./gradlew testDebugUnitTest assembleDebug --stacktrace --no-daemon
-
-      - name: Upload debug APK
-        uses: actions/upload-artifact@v4
-        if: success()
-        with:
-          name: essentials-debug-apk
+          name: hyper-essentials-debug
           path: app/build/outputs/apk/debug/*.apk
-          retention-days: 7
-          if-no-files-found: warn
+          if-no-files-found: error
+  release:
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: hyper-essentials-debug
+          path: apk
+      - name: Publish preview APK
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          TAG: ${{ github.ref_name }}
+        run: gh release create "$TAG" apk/*.apk --prerelease --title "Hyper Essentials $TAG (preview)" --notes 'Material 3 port for MIUI / HyperOS. Debug-signed preview. Physical Xiaomi / Redmi / POCO testing pending. See README for requirements and limitations.'

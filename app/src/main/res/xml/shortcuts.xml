@@ -8,8 +8,8 @@
         android:shortcutShortLabel="@string/freeze_shortcut_short_label">
         <intent
             android:action="android.intent.action.VIEW"
-            android:targetClass="com.sameerasw.essentials.ui.activities.AppFreezingActivity"
-            android:targetPackage="com.sameerasw.essentials" />
+            android:targetClass="io.github.pandora615.hyperessentials.ui.activities.AppFreezingActivity"
+            android:targetPackage="io.github.pandora615.hyperessentials" />
         <categories android:name="android.shortcut.conversation" />
     </shortcut>
 </shortcuts>

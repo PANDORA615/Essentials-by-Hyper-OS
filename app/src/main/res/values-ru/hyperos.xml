@@ -1,0 +1,24 @@
+<resources>
+    <string name="hyper_hub_title">Настройка MIUI / HyperOS</string>
+    <string name="hyper_back">Назад</string>
+    <string name="hyper_unavailable">Этот экран недоступен в вашей прошивке. Откройте сведения о приложении вручную.</string>
+    <string name="hyper_device_notice">Обнаружено устройство Xiaomi. Доступность настроек зависит от прошивки и региона.</string>
+    <string name="hyper_other_device">Устройство не определено как Xiaomi, Redmi или POCO. Доступны стандартные настройки Android.</string>
+    <string name="hyper_setup_heading">Работа инструментов в фоне</string>
+    <string name="hyper_autostart">Автозапуск</string>
+    <string name="hyper_autostart_help">Разрешите Hyper Essentials автоматически запускаться после перезагрузки.</string>
+    <string name="hyper_background">Фоновая работа</string>
+    <string name="hyper_battery_exempt">Оптимизация батареи Android отключена. MIUI может применять собственные ограничения.</string>
+    <string name="hyper_background_help">Выберите «Нет ограничений» в настройках батареи, если фоновые функции останавливаются.</string>
+    <string name="hyper_permissions">Другие разрешения</string>
+    <string name="hyper_permissions_help">Проверьте фоновые всплывающие окна и работу на экране блокировки. Включайте только разрешения для нужных вам функций.</string>
+    <string name="hyper_notifications">Уведомления</string>
+    <string name="hyper_notifications_help">Выберите уведомления и каналы служб, которые хотите получать.</string>
+    <string name="hyper_overlay">Поверх других приложений</string>
+    <string name="hyper_overlay_help">Требуется только для функций с наложениями. Предоставляйте доступ при их использовании.</string>
+    <string name="hyper_accessibility">Специальные возможности</string>
+    <string name="hyper_accessibility_help">Нужны только для соответствующих инструментов. Прочитайте описание службы перед включением.</string>
+    <string name="hyper_limits">Некоторые функции требуют Shizuku или root. Работа функций Pixel на MIUI и HyperOS не гарантируется. Названия и доступность системных экранов зависят от прошивки; запасной переход открывает сведения о приложении. Порт пока не проверен на физических устройствах Xiaomi.</string>
+    <string name="hyper_source">Исходный код и сборки</string>
+    <string name="hyper_open">Открыть настройки →</string>
+</resources>

@@ -9,7 +9,7 @@ object IslandSchema {
     const val META_PRIORITY = "com.sameerasw.island.provider.priority"
     const val META_SETTINGS_ACTIVITY = "com.sameerasw.island.provider.settings"
 
-    const val DEFAULT_HOST_PACKAGE = "com.sameerasw.essentials"
+    const val DEFAULT_HOST_PACKAGE = "io.github.pandora615.hyperessentials"
     val ALLOWED_HOSTS = setOf(DEFAULT_HOST_PACKAGE)
 }
 
