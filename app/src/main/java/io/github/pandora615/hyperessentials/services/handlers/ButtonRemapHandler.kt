@@ -58,6 +58,22 @@ class ButtonRemapHandler(
             handleLongPress(lastPendingActions)
         }
 
+    private fun timeoutFor(keyCode: Int): Long =
+        if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
+            settingsRepository.getLong("hyper_volume_down_hold_ms", longPressTimeout).coerceIn(500L, 5000L)
+        } else longPressTimeout
+
+    fun cancelPending() {
+        handler.removeCallbacks(longPressRunnable)
+        lastPendingActions = emptyList()
+        isLongPressTriggered = false
+    }
+
+    fun destroy() {
+        cancelPending()
+        sequenceJob?.cancel()
+    }
+
     fun onKeyEvent(event: KeyEvent): Boolean {
         val keyCode = event.keyCode
         if (keyCode != KeyEvent.KEYCODE_VOLUME_UP && keyCode != KeyEvent.KEYCODE_VOLUME_DOWN) {
@@ -135,7 +151,7 @@ class ButtonRemapHandler(
                     isLongPressTriggered = false
                     lastPressedKeyCode = keyCode
                     lastPendingActions = targetLongPressActions
-                    handler.postDelayed(longPressRunnable, longPressTimeout)
+                    handler.postDelayed(longPressRunnable, timeoutFor(keyCode))
                 }
                 return true
             } else if (event.action == KeyEvent.ACTION_UP) {
@@ -167,7 +183,7 @@ class ButtonRemapHandler(
                 lastPressedKeyCode = keyCode
                 lastPendingActions = finalActions
                 isLongPressTriggered = false
-                handler.postDelayed(longPressRunnable, longPressTimeout)
+                handler.postDelayed(longPressRunnable, timeoutFor(keyCode))
             }
             return true
         } else if (event.action == KeyEvent.ACTION_UP) {

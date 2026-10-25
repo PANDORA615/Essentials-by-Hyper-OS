@@ -58,6 +58,7 @@ class MediaPlugin : BaseIslandPlugin() {
     private var active: MediaController? = null
     private var track: Track? = null
     private var playing = false
+    private var trackLoadRevision = 0L
     private var liked = false
 
     private var lastController: MediaController? = null
@@ -73,6 +74,7 @@ class MediaPlugin : BaseIslandPlugin() {
     }
 
     override fun onStop() {
+        trackLoadRevision++
         IslandMediaState.current.value = null
         lastController = null
         lastTrack = null
@@ -94,6 +96,7 @@ class MediaPlugin : BaseIslandPlugin() {
             render()
             return
         }
+        source?.start() // Retry after notification access is granted on MIUI/HyperOS.
         val excluded = settings.loadIslandMediaExcludedApps().filter { it.isEnabled }.map { it.packageName }.toSet()
         val controllers = source?.all.orEmpty()
         val playingController = controllers.firstOrNull {
@@ -107,14 +110,17 @@ class MediaPlugin : BaseIslandPlugin() {
             playing = true
             liked = MediaSessionSource.isLiked(playingController)
             val metadata = playingController.metadata
-            val title = metadata?.getString(MediaMetadata.METADATA_KEY_TITLE).orEmpty()
-            val artist = metadata?.getString(MediaMetadata.METADATA_KEY_ARTIST).orEmpty()
+            val title = metadata?.getString(MediaMetadata.METADATA_KEY_TITLE)
+                ?.takeIf { it.isNotBlank() } ?: metadata?.getString(MediaMetadata.METADATA_KEY_DISPLAY_TITLE).orEmpty()
+            val artist = metadata?.getString(MediaMetadata.METADATA_KEY_ARTIST)
+                ?.takeIf { it.isNotBlank() } ?: metadata?.getString(MediaMetadata.METADATA_KEY_DISPLAY_SUBTITLE).orEmpty()
             if (title.isBlank() && artist.isBlank()) return
             val key = "${playingController.packageName}_${title}_$artist"
             if (track?.key == key) {
                 render()
                 return
             }
+            val revision = ++trackLoadRevision
             val isNewTrack = track != null
             c.scope.launch {
                 var hadArt = true
@@ -124,7 +130,7 @@ class MediaPlugin : BaseIslandPlugin() {
                     val resolved = bmp ?: MediaSessionSource.appIcon(context, playingController.packageName)
                     resolved to accentFrom(resolved)
                 }
-                if (active?.sessionToken != playingController.sessionToken) return@launch
+                if (revision != trackLoadRevision || active?.sessionToken != playingController.sessionToken) return@launch
                 track = Track(key, playingController.packageName, title, artist, art, accent)
                 lastTrack = track
                 render()

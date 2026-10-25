@@ -21,4 +21,11 @@
     <string name="hyper_limits">Некоторые функции требуют Shizuku или root. Работа функций Pixel на MIUI и HyperOS не гарантируется. Названия и доступность системных экранов зависят от прошивки; запасной переход открывает сведения о приложении. Порт пока не проверен на физических устройствах Xiaomi.</string>
     <string name="hyper_source">Исходный код и сборки</string>
     <string name="hyper_open">Открыть настройки →</string>
+    <string name="hyper_shizuku_stopped">Запустите Shizuku и вернитесь сюда</string>
+    <string name="hyper_shizuku_permission">Нужно разрешение</string>
+    <string name="hyper_shizuku_ready">Подключено, доступ разрешён</string>
+    <string name="hyper_shizuku_connect">Подключить Shizuku</string>
+    <string name="hyper_shizuku_help">Сначала запустите службу Shizuku и разрешите доступ Hyper Essentials. Для музыкальных плееров отдельно нужен доступ к уведомлениям. MIUI может ограничивать команды shell: подключение не гарантирует выдачу всех системных разрешений.</string>
+    <string name="hyper_volume_preset">Громкость вниз · удерживать 2 секунды → выключить экран</string>
+    <string name="hyper_volume_help">Нужна служба специальных возможностей Hyper Essentials. Короткое нажатие меняет громкость. В камере сохраняются её действия. Отключение возвращает прежний бинд.</string>
 </resources>

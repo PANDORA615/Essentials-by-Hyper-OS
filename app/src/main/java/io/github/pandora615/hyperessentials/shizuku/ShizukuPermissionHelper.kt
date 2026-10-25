@@ -48,8 +48,9 @@ class ShizukuPermissionHelper(
         try {
             if (Shizuku.isPreV11() || Shizuku.getVersion() < 11) {
             } else {
-                Shizuku.requestPermission(0)
+                Shizuku.removeRequestPermissionResultListener(listener)
                 Shizuku.addRequestPermissionResultListener(listener)
+                Shizuku.requestPermission(0)
             }
         } catch (e: Exception) {
         }

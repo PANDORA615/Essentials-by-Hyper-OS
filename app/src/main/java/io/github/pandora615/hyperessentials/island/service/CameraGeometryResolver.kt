@@ -45,7 +45,11 @@ object CameraGeometryResolver {
                     verticalGap = verticalGap,
                     screenWidth = screenWidth,
                     screenHeight = screenHeight,
-                    anchor = anchorFor(settings),
+                    anchor = when (io.github.pandora615.hyperessentials.hyperos.XiaomiProfiles.cameraSide(rect.exactCenterX(), screenWidth)) {
+                        -1 -> CameraAnchor.Start
+                        1 -> CameraAnchor.End
+                        else -> CameraAnchor.Center
+                    },
                 )
             }
         }

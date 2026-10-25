@@ -21,4 +21,11 @@
     <string name="hyper_limits">Some features require Shizuku or root. Pixel-only functions are not guaranteed on MIUI or HyperOS. OEM settings may be hidden or renamed; app details opens as a fallback. This port has not yet been verified on physical Xiaomi devices.</string>
     <string name="hyper_source">Source code and releases</string>
     <string name="hyper_open">Open settings →</string>
+    <string name="hyper_shizuku_stopped">Start Shizuku, then return here</string>
+    <string name="hyper_shizuku_permission">Permission required</string>
+    <string name="hyper_shizuku_ready">Connected and authorized</string>
+    <string name="hyper_shizuku_connect">Connect Shizuku</string>
+    <string name="hyper_shizuku_help">Start the Shizuku service first and allow Hyper Essentials in its authorized apps. Notification access is separately required for music players. MIUI may restrict shell operations; a connected binder does not guarantee every system permission.</string>
+    <string name="hyper_volume_preset">Volume down · hold 2 seconds → screen off</string>
+    <string name="hyper_volume_help">Requires the Hyper Essentials accessibility service. Short presses still change volume. Camera shortcuts take precedence. Disabling restores the previous binding.</string>
 </resources>

@@ -97,7 +97,7 @@ object ShizukuUtils {
         }
 
     fun initialize() {
-        Shizuku.addBinderReceivedListener(binderReceivedListener)
+        Shizuku.addBinderReceivedListenerSticky(binderReceivedListener)
         Shizuku.addBinderDeadListener(binderDeadListener)
     }
 
@@ -115,7 +115,6 @@ object ShizukuUtils {
     fun isShizukuAvailable(): Boolean =
         try {
             Shizuku.pingBinder()
-            true
         } catch (
             @Suppress("UNUSED_PARAMETER") e: Exception,
         ) {

@@ -118,7 +118,7 @@ class InputEventListenerService : Service() {
             )
         }
 
-        Shizuku.addBinderReceivedListener(binderReceivedListener)
+        Shizuku.addBinderReceivedListenerSticky(binderReceivedListener)
         Shizuku.addBinderDeadListener(binderDeadListener)
 
         scope?.launch {

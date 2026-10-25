@@ -38,11 +38,13 @@ class MediaSessionSource(
         try {
             val component = ComponentName(context, NotificationListener::class.java)
             val listener = MediaSessionManager.OnActiveSessionsChangedListener { update(it) }
-            sessionsListener = listener
             mgr.addOnActiveSessionsChangedListener(listener, component, handler)
+            sessionsListener = listener
             update(mgr.getActiveSessions(component))
             onChanged()
         } catch (_: Exception) {
+            sessionsListener?.let { runCatching { mgr.removeOnActiveSessionsChangedListener(it) } }
+            sessionsListener = null
         }
     }
 
@@ -84,7 +86,11 @@ class MediaSessionSource(
             val cb = object : MediaController.Callback() {
                 override fun onPlaybackStateChanged(state: PlaybackState?) = schedule()
                 override fun onMetadataChanged(metadata: MediaMetadata?) = schedule()
-                override fun onSessionDestroyed() = schedule()
+                override fun onSessionDestroyed() {
+                    controllers.removeAll { it.sessionToken == controller.sessionToken }
+                    callbacks.remove(controller.sessionToken)?.let { runCatching { controller.unregisterCallback(it) } }
+                    schedule()
+                }
             }
             try {
                 controller.registerCallback(cb, handler)

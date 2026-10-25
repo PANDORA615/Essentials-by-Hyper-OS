@@ -104,6 +104,7 @@
     <uses-permission android:name="android.permission.SET_WALLPAPER" />
 
     <queries>
+        <package android:name="moe.shizuku.privileged.api" />
         <package android:name="com.miui.securitycenter" />
         <package android:name="com.miui.powerkeeper" />
         <package android:name="com.sameerasw.overcast" />

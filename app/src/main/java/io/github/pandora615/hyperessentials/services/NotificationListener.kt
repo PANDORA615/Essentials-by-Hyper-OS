@@ -360,6 +360,10 @@ class NotificationListener : NotificationListenerService() {
     override fun onListenerConnected() {
         super.onListenerConnected()
         instance = this
+        // Reconnect MediaSession listeners immediately after notification access is granted.
+        android.os.Handler(android.os.Looper.getMainLooper()).post {
+            runCatching { ScreenOffAccessibilityService.instance?.islandOverlayHandler?.updateState() }
+        }
         populateActiveUnreadNotifications()
         try {
             val pm = getSystemService(POWER_SERVICE) as PowerManager

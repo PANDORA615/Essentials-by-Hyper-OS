@@ -57,7 +57,7 @@ class VolumeLongPressDetector(
                             continue
                         }
 
-                        if (event.type != InputEventReader.EV_KEY) continue
+                        if (event.type != InputEventReader.EV_KEY || event.value !in 0..1) continue
 
                         when (event.code) {
                             InputEventReader.KEY_VOLUMEUP ->
@@ -87,6 +87,8 @@ class VolumeLongPressDetector(
 
     fun stopListening() {
         isRunning.set(false)
+        upJob?.cancel()
+        downJob?.cancel()
         detectionJob?.cancel()
         reader.close()
     }

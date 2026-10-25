@@ -250,9 +250,9 @@ fun pastelOf(color: Color): Color {
 
 object IslandTextStyles {
     val line: TextStyle
-        @Composable get() = TextStyle(color = islandTextColor(), fontSize = 13.sp, fontFamily = IslandFontFamily, fontWeight = FontWeight.Medium)
+        @Composable get() = TextStyle(platformStyle = androidx.compose.ui.text.PlatformTextStyle(includeFontPadding = false), color = islandTextColor(), fontSize = 13.sp, fontFamily = IslandFontFamily, fontWeight = FontWeight.Medium)
     val compact: TextStyle
-        @Composable get() = TextStyle(
+        @Composable get() = TextStyle(platformStyle = androidx.compose.ui.text.PlatformTextStyle(includeFontPadding = false),
             color = islandTextColor(),
             fontSize = 14.sp,
             fontFamily = IslandFontFamily,
@@ -260,7 +260,7 @@ object IslandTextStyles {
             fontFeatureSettings = "tnum",
         )
     val title: TextStyle
-        @Composable get() = TextStyle(color = islandTextColor(), fontSize = 15.sp, fontFamily = IslandFontFamily, fontWeight = FontWeight.SemiBold)
+        @Composable get() = TextStyle(platformStyle = androidx.compose.ui.text.PlatformTextStyle(includeFontPadding = false), color = islandTextColor(), fontSize = 15.sp, fontFamily = IslandFontFamily, fontWeight = FontWeight.SemiBold)
     val body: TextStyle
-        @Composable get() = TextStyle(color = islandTextColor(0.72f), fontSize = 13.sp, fontFamily = IslandFontFamily)
+        @Composable get() = TextStyle(platformStyle = androidx.compose.ui.text.PlatformTextStyle(includeFontPadding = false), color = islandTextColor(0.72f), fontSize = 13.sp, fontFamily = IslandFontFamily)
 }

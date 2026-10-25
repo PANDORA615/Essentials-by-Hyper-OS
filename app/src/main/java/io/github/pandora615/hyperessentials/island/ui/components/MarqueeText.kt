@@ -30,7 +30,7 @@ fun MarqueeText(
     fadeStart: Boolean = true,
     fadeEnd: Boolean = true,
     fadeWidth: Dp = 14.dp,
-) = MarqueeText(AnnotatedString(text), style, modifier, textAlign, fadeStart, fadeEnd, fadeWidth)
+) = MarqueeText(AnnotatedString(text.replace('\n', ' ').replace('\r', ' ')), style, modifier, textAlign, fadeStart, fadeEnd, fadeWidth)
 
 @Composable
 fun MarqueeText(
@@ -42,16 +42,23 @@ fun MarqueeText(
     fadeEnd: Boolean = true,
     fadeWidth: Dp = 14.dp,
 ) {
+    val stableStyle = style.copy(
+        platformStyle = androidx.compose.ui.text.PlatformTextStyle(includeFontPadding = false),
+        lineHeightStyle = androidx.compose.ui.text.style.LineHeightStyle(
+            alignment = androidx.compose.ui.text.style.LineHeightStyle.Alignment.Center,
+            trim = androidx.compose.ui.text.style.LineHeightStyle.Trim.Both,
+        ),
+    )
     val measurer = rememberTextMeasurer()
     BoxWithConstraints(modifier) {
-        val textWidth = remember(text, style) { measurer.measure(text, style, maxLines = 1, softWrap = false).size.width }
+        val textWidth = remember(text, stableStyle, measurer) { measurer.measure(text, stableStyle, maxLines = 1, softWrap = false).size.width }
         val overflows = constraints.hasBoundedWidth && textWidth > constraints.maxWidth
         if (!overflows) {
-            Text(text, style = style.copy(textAlign = textAlign), maxLines = 1, softWrap = false, modifier = Modifier.fillMaxWidth())
+            Text(text, style = stableStyle.copy(textAlign = textAlign), maxLines = 1, softWrap = false, modifier = Modifier.fillMaxWidth())
         } else {
             Text(
                 text = text,
-                style = style,
+                style = stableStyle,
                 maxLines = 1,
                 softWrap = false,
                 modifier = Modifier

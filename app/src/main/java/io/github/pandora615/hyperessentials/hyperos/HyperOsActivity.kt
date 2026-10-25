@@ -112,6 +112,7 @@ private fun HyperOsScreen(onBack: () -> Unit) {
                     Text(stringResource(if (xiaomi) R.string.hyper_device_notice else R.string.hyper_other_device))
                 }
             }
+            XiaomiTools()
             Text(stringResource(R.string.hyper_setup_heading), style = MaterialTheme.typography.titleLarge)
             SetupCard(R.string.hyper_autostart, R.string.hyper_autostart_help) {
                 openFirst(context, listOf(

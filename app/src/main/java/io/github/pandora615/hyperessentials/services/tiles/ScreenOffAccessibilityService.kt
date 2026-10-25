@@ -571,6 +571,7 @@ class ScreenOffAccessibilityService :
         omniGestureOverlayHandler.removeOverlay()
         smartPixelsHandler.destroy()
         duoOverlayHandler.destroy()
+        buttonRemapHandler.destroy()
         islandOverlayHandler.onDestroy()
         statusGlanceHandler.destroy()
         lockscreenShortcutsHandler.onDestroy()
@@ -893,6 +894,7 @@ class ScreenOffAccessibilityService :
             // Bypass logic for Camera apps to resolve conflicts with shutter/zoom functions
             val foregroundPackage = appFlowHandler.currentPackage
             if (appFlowHandler.isCameraApp(foregroundPackage)) {
+                buttonRemapHandler.cancelPending()
                 return false
             }
         }
