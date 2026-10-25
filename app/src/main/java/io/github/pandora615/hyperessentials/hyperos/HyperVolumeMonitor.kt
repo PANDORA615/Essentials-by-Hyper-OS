@@ -51,7 +51,7 @@ class HyperVolumeMonitor(private val context: Context, private val scope: Corout
             val service = ScreenOffAccessibilityService.instance ?: return@launch
             if (service.isCameraForeground()) return@launch
             // Accessibility already handles this press on devices that deliver key events.
-            if (SystemClock.elapsedRealtime() - prefs.getLong("hyper_native_volume_down", 0L) < 2500) return@launch
+            if (VolumeHoldState.nativeHandled(SystemClock.elapsedRealtime(), prefs.getLong("hyper_native_volume_down", 0L))) return@launch
             service.performGlobalAction(AccessibilityService.GLOBAL_ACTION_LOCK_SCREEN)
         }
     }
