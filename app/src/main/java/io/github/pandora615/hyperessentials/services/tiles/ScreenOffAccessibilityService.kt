@@ -231,6 +231,10 @@ class ScreenOffAccessibilityService :
 
     private val preferenceChangeListener =
         android.content.SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+            if (key?.startsWith("button_remap") == true || key == "hyper_volume_preset") {
+                if (getSharedPreferences("essentials_prefs", MODE_PRIVATE).getBoolean("button_remap_enabled", false)) startInputEventListenerIfEnabled()
+                else stopInputEventListener(force = true)
+            }
             if (key == SettingsRepository.KEY_ISLAND_HIDE_LIVE_UPDATES) {
                 LiveUpdateSnoozer.onSettingChanged()
             } else if (key == "circle_to_search_gesture_enabled" ||
@@ -1046,7 +1050,7 @@ class ScreenOffAccessibilityService :
         val isEnabled = prefs.getBoolean("button_remap_enabled", false)
         val useShizuku = prefs.getBoolean("button_remap_use_shizuku", false)
 
-        if (isEnabled && (useShizuku || prefs.getBoolean("hyper_volume_preset", false))) {
+        if (isEnabled) {
             try {
                 val intent = Intent(this, InputEventListenerService::class.java)
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
@@ -1062,7 +1066,7 @@ class ScreenOffAccessibilityService :
     }
 
     private fun stopInputEventListener(force: Boolean = false) {
-        if (!force && getSharedPreferences("essentials_prefs", MODE_PRIVATE).getBoolean("hyper_volume_preset", false)) {
+        if (!force && getSharedPreferences("essentials_prefs", MODE_PRIVATE).getBoolean("button_remap_enabled", false)) {
             startInputEventListenerIfEnabled()
             return
         }

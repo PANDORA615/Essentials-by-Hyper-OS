@@ -38,19 +38,22 @@ class EssentialsApp : Application() {
 
     override fun onCreate() {
         super.onCreate()
+        io.github.pandora615.hyperessentials.hyperos.SettingsPreserver.initialize(this)
         io.github.pandora615.hyperessentials.data.repository.SettingsRepository(this).syncTorchRestriction()
         context = applicationContext
-        // One-time upgrade: show the island on a lit lock screen, with message text concealed.
-        val islandPrefs = getSharedPreferences(SettingsRepository.PREFS_NAME, MODE_PRIVATE)
-        if (!islandPrefs.getBoolean("hyper_lock_notifications_v040", false)) {
-            val editor = islandPrefs.edit()
-            if (islandPrefs.getString(SettingsRepository.KEY_ISLAND_SHOW_WHEN, null) != SettingsRepository.ISLAND_SHOW_WHEN_ALWAYS) {
-                editor.putString(SettingsRepository.KEY_ISLAND_SHOW_WHEN, SettingsRepository.ISLAND_SHOW_WHEN_SCREEN_ON)
+        registerActivityLifecycleCallbacks(object : ActivityLifecycleCallbacks {
+            override fun onActivityResumed(activity: android.app.Activity) {
+                if (SettingsRepository(activity).getBoolean("button_remap_enabled", false)) runCatching {
+                    activity.startForegroundService(Intent(activity, io.github.pandora615.hyperessentials.services.InputEventListenerService::class.java))
+                }
             }
-            editor.putBoolean(SettingsRepository.KEY_ISLAND_NOTIF_DISABLE_LOCKED, false)
-                .putBoolean(SettingsRepository.KEY_ISLAND_NOTIF_CONCEAL_LOCKED, true)
-                .putBoolean("hyper_lock_notifications_v040", true).apply()
-        }
+            override fun onActivityCreated(a:android.app.Activity,b:android.os.Bundle?) {}
+            override fun onActivityStarted(a:android.app.Activity) {}
+            override fun onActivityPaused(a:android.app.Activity) {}
+            override fun onActivityStopped(a:android.app.Activity) {}
+            override fun onActivitySaveInstanceState(a:android.app.Activity,b:android.os.Bundle) {}
+            override fun onActivityDestroyed(a:android.app.Activity) {}
+        })
         io.github.pandora615.hyperessentials.utils.HapticUtil.initialize(this)
 
         try {

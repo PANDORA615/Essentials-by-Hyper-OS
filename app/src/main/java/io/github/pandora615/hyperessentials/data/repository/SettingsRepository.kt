@@ -80,7 +80,7 @@ class SettingsRepository(
                 KEY_BUTTON_REMAP_VOL_DOWN_ACTION_ON,
             )
         for (key in remapKeys) {
-            val raw = prefs.getString(key, null) ?: continue
+            val raw = prefs.getString(key, null)?.trimStart() ?: continue
             if (raw.startsWith("{") || raw.startsWith("[")) continue
             val action: Action? =
                 when (raw) {
@@ -92,13 +92,14 @@ class SettingsRepository(
                     "Toggle mute" -> Action.ToggleMute
                     "AI assistant" -> Action.AIAssistant
                     "Take screenshot" -> Action.TakeScreenshot
+                    "Screen off", "Выключить экран" -> Action.ScreenOff()
                     "Cycle sound modes" -> Action.CycleSoundModes
                     "Toggle media volume" -> Action.ToggleMediaVolume
                     "Like current song" -> Action.LikeCurrentSong
                     "Circle to Search" -> Action.CircleToSearch()
                     else -> null
                 }
-            setRemapAction(key, action)
+            if (action != null) setRemapAction(key, action)
         }
 
         putBoolean(KEY_BUTTON_REMAP_MIGRATION_DONE, true)
@@ -136,11 +137,10 @@ class SettingsRepository(
 
     fun getRemapActions(key: String): List<Action> {
         val json = prefs.getString(key, null) ?: return emptyList()
-        return if (json.trimStart().startsWith("[")) {
-            ActionGsonAdapter.listFromJson(json)
-        } else {
-            listOfNotNull(ActionGsonAdapter.fromJson(json))
-        }
+        return runCatching {
+            if (json.trimStart().startsWith("[")) ActionGsonAdapter.listFromJson(json)
+            else listOfNotNull(ActionGsonAdapter.fromJson(json))
+        }.getOrDefault(emptyList())
     }
 
     fun setRemapActions(
@@ -4028,7 +4028,11 @@ class SettingsRepository(
     // Island
     fun isIslandEnabled(): Boolean = getBoolean(KEY_ISLAND_ENABLED, false)
     fun setIslandEnabled(enabled: Boolean) {
-        if (enabled) putBoolean(KEY_ISLAND_SUPPRESS_SYSTEM_HEADS_UP, true)
+        if (enabled) {
+            putBoolean(KEY_ISLAND_SUPPRESS_SYSTEM_HEADS_UP, true)
+            putBoolean(KEY_ISLAND_NOTIF_DISABLE_LOCKED, false)
+            if (getIslandShowWhen() == ISLAND_SHOW_WHEN_UNLOCKED) setIslandShowWhen(ISLAND_SHOW_WHEN_SCREEN_ON)
+        }
         putBoolean(KEY_ISLAND_ENABLED, enabled)
         if (isIslandSuppressSystemHeadsUpEnabled()) applyHeadsUpSuppression(enabled)
     }

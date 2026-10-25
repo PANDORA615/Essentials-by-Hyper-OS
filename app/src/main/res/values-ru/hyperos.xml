@@ -45,4 +45,8 @@
     <string name="hyper_color_orange">Оранжевый</string>
     <string name="hyper_color_mint">Мятный</string>
     <string name="hyper_island_roundness">Скругление раскрытого острова</string>
+    <string name="hyper_binding_diagnostics">Диагностика бинда громкости</string>
+    <string name="hyper_sleep_test">Проверить выключение экрана</string>
+    <string name="hyper_sleep_test_help">Проверка сразу выключает экран. Если Accessibility не сработает, будет использован Shizuku.</string>
+    <string name="hyper_sleep_failed">Экран не выключился: проверьте разрешения Shizuku и Accessibility.</string>
 </resources>

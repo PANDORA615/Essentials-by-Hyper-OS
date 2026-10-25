@@ -72,8 +72,8 @@ fun ButtonRemapSettingsUI(
 ) {
     val context = LocalContext.current
     val view = LocalView.current
-    var selectedScreenTab by remember { mutableIntStateOf(0) } // 0: Off, 1: On
-    var selectedButtonTab by remember { mutableIntStateOf(0) } // 0: Up, 1: Down
+    var selectedScreenTab by remember { mutableIntStateOf(1) } // 0: Off, 1: On
+    var selectedButtonTab by remember { mutableIntStateOf(1) } // 0: Up, 1: Down
 
     val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
     var shizukuStatus by remember { mutableStateOf(ShizukuStatus.NOT_RUNNING) }
@@ -107,6 +107,18 @@ fun ButtonRemapSettingsUI(
                 .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
+        io.github.pandora615.hyperessentials.hyperos.BindingDiagnostics()
+        androidx.compose.material3.Button(onClick = {
+            viewModel.setRemapActions(RemapSlot(RemapInput.VOLUME_DOWN, RemapScreenState.ON), listOf(Action.ScreenOff()))
+            context.getSharedPreferences(io.github.pandora615.hyperessentials.data.repository.SettingsRepository.PREFS_NAME, android.content.Context.MODE_PRIVATE)
+                .edit().putLong("hyper_volume_down_hold_ms", 2000L).apply()
+            viewModel.setButtonRemapPauseOnVolumeDialog(false, context)
+            viewModel.setButtonRemapEnabled(true, context)
+            selectedButtonTab = 1
+            selectedScreenTab = 1
+            runCatching { context.startForegroundService(android.content.Intent(context,
+                io.github.pandora615.hyperessentials.services.InputEventListenerService::class.java)) }
+        }) { Text(stringResource(R.string.hyper_volume_preset)) }
         // Master Toggle
         RoundedCardContainer(spacing = 2.dp) {
             IconToggleItem(

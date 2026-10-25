@@ -36,6 +36,9 @@ import io.github.pandora615.hyperessentials.utils.BluetoothDeviceOrder
 
 class BatteryNotificationService : Service() {
     private lateinit var settingsRepository: SettingsRepository
+    private val batteryReceiver = object : android.content.BroadcastReceiver() {
+        override fun onReceive(context: android.content.Context?, intent: Intent?) { updateNotification() }
+    }
     private val NOTIF_ID = 8822
     private val CHANNEL_ID = "battery_notification_channel"
 
@@ -62,6 +65,11 @@ class BatteryNotificationService : Service() {
         super.onCreate()
         settingsRepository = SettingsRepository(this)
         createNotificationChannel()
+        val batteryFilter = android.content.IntentFilter(Intent.ACTION_BATTERY_CHANGED).apply {
+            addAction(android.os.PowerManager.ACTION_POWER_SAVE_MODE_CHANGED)
+        }
+        if (Build.VERSION.SDK_INT >= 33) registerReceiver(batteryReceiver, batteryFilter, RECEIVER_NOT_EXPORTED)
+        else registerReceiver(batteryReceiver, batteryFilter)
         settingsRepository.registerOnSharedPreferenceChangeListener(preferenceChangeListener)
 
         if (!safeStartForeground(buildBaseNotification(getString(R.string.feat_batteries_title), ""))) return
@@ -82,6 +90,7 @@ class BatteryNotificationService : Service() {
     }
 
     override fun onDestroy() {
+        runCatching { unregisterReceiver(batteryReceiver) }
         try {
             settingsRepository.unregisterOnSharedPreferenceChangeListener(preferenceChangeListener)
         } catch (_: Exception) {

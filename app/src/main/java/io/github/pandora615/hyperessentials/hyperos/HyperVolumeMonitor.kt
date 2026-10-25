@@ -38,21 +38,22 @@ class HyperVolumeMonitor(private val context: Context, private val scope: Corout
             }
         }
     }
+    private fun hasScreenOffBinding(): Boolean = prefs.getBoolean("hyper_volume_preset", false) ||
+        SettingsRepository(context).getRemapActions(SettingsRepository.KEY_BUTTON_REMAP_VOL_DOWN_ACTION_ON)
+            .any { it is io.github.pandora615.hyperessentials.domain.diy.Action.ScreenOff }
     private fun handle(down: Boolean) {
         prefs.edit().putLong("hyper_last_volume_event", SystemClock.elapsedRealtime()).putString("hyper_hardware_status", "receiving").apply()
         if (down == pressed) return
         pressed = down
         hold?.cancel()
         val power = context.getSystemService(Context.POWER_SERVICE) as PowerManager
-        if (!down || !power.isInteractive || !prefs.getBoolean("hyper_volume_preset", false) || !prefs.getBoolean("button_remap_enabled", false)) return
+        if (!down || !power.isInteractive || !hasScreenOffBinding() || !prefs.getBoolean("button_remap_enabled", false)) return
         hold = scope.launch(Dispatchers.Main) {
-            delay(2000)
-            if (!pressed || !power.isInteractive || !prefs.getBoolean("hyper_volume_preset", false) || !prefs.getBoolean("button_remap_enabled", false)) return@launch
-            val service = ScreenOffAccessibilityService.instance ?: return@launch
-            if (service.isCameraForeground()) return@launch
-            // Accessibility already handles this press on devices that deliver key events.
-            if (VolumeHoldState.nativeHandled(SystemClock.elapsedRealtime(), prefs.getLong("hyper_native_volume_down", 0L))) return@launch
-            service.performGlobalAction(AccessibilityService.GLOBAL_ACTION_LOCK_SCREEN)
+            delay(prefs.getLong("hyper_volume_down_hold_ms", 2000L).coerceIn(500L, 5000L))
+            if (!pressed || !power.isInteractive || !hasScreenOffBinding() || !prefs.getBoolean("button_remap_enabled", false)) return@launch
+            if (ScreenOffAccessibilityService.instance?.isCameraForeground() == true) return@launch
+            // A received accessibility event is not proof that the lock action succeeded.
+            ScreenSleep.request(context)
         }
     }
     fun stop() {

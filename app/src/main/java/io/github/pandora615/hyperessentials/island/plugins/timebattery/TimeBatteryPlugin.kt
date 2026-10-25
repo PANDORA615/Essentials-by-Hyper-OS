@@ -203,7 +203,7 @@ class TimeBatteryPlugin : BaseIslandPlugin() {
         if (raw < 0 || scale <= 0) return
         val status = batteryIntent.getIntExtra(BatteryManager.EXTRA_STATUS, -1)
         level = (raw * 100f / scale).toInt()
-        val plugged = status == BatteryManager.BATTERY_STATUS_CHARGING || status == BatteryManager.BATTERY_STATUS_FULL
+        val plugged = io.github.pandora615.hyperessentials.hyperos.BatteryVisualPolicy.connected(batteryIntent.getIntExtra(BatteryManager.EXTRA_PLUGGED, 0), status)
         shielded = io.github.pandora615.hyperessentials.utils.battery.ChargeLimitUtil.isShielded(context, level, plugged)
         charging = plugged && !shielded
         powerSave = (context.getSystemService(Context.POWER_SERVICE) as? PowerManager)?.isPowerSaveMode ?: false
@@ -217,6 +217,7 @@ class TimeBatteryPlugin : BaseIslandPlugin() {
     }
 
     private fun peek(reason: PeekReason) {
+        if (reason == PeekReason.Charging) return
         val c = ctx ?: return
         if (!settings.isIslandShowBatteryEnabled() || !settings.isIslandBatteryPeekAlertsEnabled()) return
         val duration = settings.getIslandPeekDurationMs()
@@ -299,8 +300,8 @@ class TimeBatteryPlugin : BaseIslandPlugin() {
             compact = listOf(
                 CompactCell("battery") {
                     when {
-                        iconStyle -> BatteryGlyph(batteryLevel, displayColor ?: MaterialTheme.colorScheme.primary, showLevel = showLevel)
-                        else -> BatteryRing(batteryLevel, displayColor ?: MaterialTheme.colorScheme.primary, showLevel = showLevel)
+                        iconStyle -> BatteryGlyph(batteryLevel, displayColor ?: MaterialTheme.colorScheme.primary, showLevel = showLevel, modifier = io.github.pandora615.hyperessentials.island.ui.components.batteryChargingPulse(charging))
+                        else -> BatteryRing(batteryLevel, displayColor ?: MaterialTheme.colorScheme.primary, showLevel = showLevel, modifier = io.github.pandora615.hyperessentials.island.ui.components.batteryChargingPulse(charging))
                     }
                 },
             ),
@@ -338,7 +339,7 @@ class TimeBatteryPlugin : BaseIslandPlugin() {
         } catch (_: Exception) {
             AndroidColor.WHITE
         }
-        return Color(soften(raw))
+        return Color(raw)
     }
 
     private fun stateColor(): Color? {
@@ -348,18 +349,20 @@ class TimeBatteryPlugin : BaseIslandPlugin() {
             fallback
         }
         val charge = settings.getDuoBatteryChargingColor()
-        val raw = when {
-            charging && settings.isDuoBatteryChargingColorEnabled() ->
-                if (charge.equals("auto", ignoreCase = true)) AUTO_CHARGING else parse(charge, AUTO_CHARGING)
-            powerSave && settings.isDuoBatteryPowerSaveColorEnabled() ->
-                parse(settings.getDuoBatteryPowerSaveColor(), AndroidColor.rgb(255, 152, 0))
+        val semantic = io.github.pandora615.hyperessentials.hyperos.BatteryVisualPolicy.accent(
+            charging, powerSave,
+            if (settings.isDuoBatteryChargingColorEnabled()) {
+                if (charge.equals("auto", true)) AUTO_CHARGING else parse(charge, AUTO_CHARGING)
+            } else null,
+            if (settings.isDuoBatteryPowerSaveColorEnabled()) parse(settings.getDuoBatteryPowerSaveColor(), AndroidColor.rgb(255, 152, 0)) else null)
+        val raw = semantic ?: when {
             level in 0..settings.getDuoBatteryCriticalLevel() && settings.isDuoBatteryCriticalColorEnabled() ->
                 parse(settings.getDuoBatteryCriticalColor(), AndroidColor.rgb(244, 67, 54))
             level in 0..settings.getDuoBatteryLowLevel() && settings.isDuoBatteryLowColorEnabled() ->
                 parse(settings.getDuoBatteryLowColor(), AndroidColor.rgb(255, 235, 59))
             else -> return null
         }
-        return Color(soften(raw))
+        return Color(raw)
     }
 
     private companion object {

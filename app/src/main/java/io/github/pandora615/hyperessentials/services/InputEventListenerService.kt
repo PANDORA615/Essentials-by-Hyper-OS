@@ -143,7 +143,7 @@ class InputEventListenerService : Service() {
                 return@launch
             }
 
-            if (getSharedPreferences("essentials_prefs", MODE_PRIVATE).getBoolean("hyper_volume_preset", false)) {
+            if ((getSharedPreferences("essentials_prefs", MODE_PRIVATE).getBoolean("hyper_volume_preset", false) || SettingsRepository(this@InputEventListenerService).getRemapActions(SettingsRepository.KEY_BUTTON_REMAP_VOL_DOWN_ACTION_ON).any { it is io.github.pandora615.hyperessentials.domain.diy.Action.ScreenOff })) {
                 hyperMonitor = io.github.pandora615.hyperessentials.hyperos.HyperVolumeMonitor(this@InputEventListenerService, scope!!).also { it.start() }
                 return@launch
             }
@@ -310,7 +310,7 @@ class InputEventListenerService : Service() {
             stopSelf()
             return START_NOT_STICKY
         }
-        if (getSharedPreferences("essentials_prefs", MODE_PRIVATE).getBoolean("hyper_volume_preset", false) && hyperMonitor == null) startListening()
+        if ((getSharedPreferences("essentials_prefs", MODE_PRIVATE).getBoolean("hyper_volume_preset", false) || SettingsRepository(this@InputEventListenerService).getRemapActions(SettingsRepository.KEY_BUTTON_REMAP_VOL_DOWN_ACTION_ON).any { it is io.github.pandora615.hyperessentials.domain.diy.Action.ScreenOff }) && hyperMonitor == null) startListening()
         return START_STICKY
     }
 

@@ -246,6 +246,8 @@ class ButtonRemapHandler(
                 try {
                     if (action is Action.ToggleFlashlight) {
                         flashlightHandler.toggleFlashlight()
+                    } else if (action is Action.ScreenOff) {
+                        io.github.pandora615.hyperessentials.hyperos.ScreenSleep.request(service)
                     } else {
                         CombinedActionExecutor.execute(service, action)
                     }

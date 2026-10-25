@@ -45,4 +45,8 @@
     <string name="hyper_color_orange">Orange</string>
     <string name="hyper_color_mint">Mint</string>
     <string name="hyper_island_roundness">Expanded island corner radius</string>
+    <string name="hyper_binding_diagnostics">Volume binding diagnostics</string>
+    <string name="hyper_sleep_test">Test screen off now</string>
+    <string name="hyper_sleep_test_help">The test turns the screen off immediately. Shizuku can be used if Accessibility cannot lock it.</string>
+    <string name="hyper_sleep_failed">Screen off failed: check Shizuku and Accessibility permissions.</string>
 </resources>

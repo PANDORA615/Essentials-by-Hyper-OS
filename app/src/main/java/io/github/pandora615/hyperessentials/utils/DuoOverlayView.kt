@@ -732,7 +732,7 @@ class DuoOverlayView(context: Context) : View(context) {
     fun triggerChargingAnimation(isFastCharging: Boolean) {
         this.isCharging = true
         this.isFastCharging = isFastCharging
-        this.isChargingAnnounce = true
+        this.isChargingAnnounce = false
         this.isChargingThemeActive = false
         updateBatteryPercentageVisibility()
 
@@ -1114,6 +1114,17 @@ class DuoOverlayView(context: Context) : View(context) {
     }
 
     private fun getTargetColors(): Triple<Int, Int, Int> {
+        val semantic = io.github.pandora615.hyperessentials.hyperos.BatteryVisualPolicy.accent(
+            isCharging, isPowerSaveMode,
+            if (isBatteryChargingColorEnabled) {
+                if (isChargingColorAuto) { if (isFastCharging) Color.rgb(0,229,255) else Color.rgb(0,230,118) } else batteryChargingColor
+            } else null,
+            if (isBatteryPowerSaveColorEnabled) batteryPowerSaveColor else null)
+        if (semantic != null) {
+            val track = Color.argb(if (isScreenOff) 50 else 90, Color.red(semantic), Color.green(semantic), Color.blue(semantic))
+            val progress = if (isScreenOff) Color.argb(160, Color.red(semantic), Color.green(semantic), Color.blue(semantic)) else semantic
+            return Triple(track, progress, progress)
+        }
         if (isScreenOff) {
             if (isMediaPlaying && showMedia && mediaPaletteColors != null) {
                 val (_, accent) = mediaPaletteColors!!
@@ -1121,18 +1132,18 @@ class DuoOverlayView(context: Context) : View(context) {
                 val dimTrack = Color.argb(50, Color.red(accent), Color.green(accent), Color.blue(accent))
                 return Triple(dimTrack, dimProgress, dimProgress)
             }
-            if (isCharging && isBatteryChargingColorEnabled) {
+            if (isCharging && isBatteryChargingColorEnabled && !(isPowerSaveMode && isBatteryPowerSaveColorEnabled)) {
                 val chargeAccent = if (isChargingColorAuto) {
                     if (isFastCharging) Color.rgb(0, 229, 255) else Color.rgb(0, 230, 118)
                 } else {
-                    getThemeAdjustedColor(batteryChargingColor)
+                    batteryChargingColor
                 }
                 val dimProgress = Color.argb(160, Color.red(chargeAccent), Color.green(chargeAccent), Color.blue(chargeAccent))
                 val dimTrack = Color.argb(50, Color.red(chargeAccent), Color.green(chargeAccent), Color.blue(chargeAccent))
                 return Triple(dimTrack, dimProgress, dimProgress)
             }
             if (isPowerSaveMode && isBatteryPowerSaveColorEnabled) {
-                val saveAccent = getThemeAdjustedColor(batteryPowerSaveColor)
+                val saveAccent = batteryPowerSaveColor
                 val dimProgress = Color.argb(160, Color.red(saveAccent), Color.green(saveAccent), Color.blue(saveAccent))
                 val dimTrack = Color.argb(50, Color.red(saveAccent), Color.green(saveAccent), Color.blue(saveAccent))
                 return Triple(dimTrack, dimProgress, dimProgress)
@@ -1161,7 +1172,7 @@ class DuoOverlayView(context: Context) : View(context) {
             return Triple(track, progress, progress)
         }
 
-        if (isCharging && isBatteryChargingColorEnabled) {
+        if (isCharging && isBatteryChargingColorEnabled && !(isPowerSaveMode && isBatteryPowerSaveColorEnabled)) {
             val chargeAccent = if (isChargingColorAuto) {
                 if (isFastCharging) {
                     if (isDarkTheme) Color.rgb(0, 229, 255) else Color.rgb(0, 151, 167)
@@ -1169,7 +1180,7 @@ class DuoOverlayView(context: Context) : View(context) {
                     if (isDarkTheme) Color.rgb(0, 230, 118) else Color.rgb(10, 144, 66)
                 }
             } else {
-                getThemeAdjustedColor(batteryChargingColor)
+                batteryChargingColor
             }
             val track = if (isDarkTheme) {
                 val trackAlpha = 90
@@ -1185,7 +1196,7 @@ class DuoOverlayView(context: Context) : View(context) {
         }
 
         if (isPowerSaveMode && isBatteryPowerSaveColorEnabled) {
-            val saveAccent = getThemeAdjustedColor(batteryPowerSaveColor)
+            val saveAccent = batteryPowerSaveColor
             val trackAlpha = if (isDarkTheme) 90 else 110
             val track = Color.argb(trackAlpha, Color.red(saveAccent), Color.green(saveAccent), Color.blue(saveAccent))
             return Triple(track, saveAccent, saveAccent)
@@ -1749,7 +1760,7 @@ class DuoOverlayView(context: Context) : View(context) {
                         if (isDarkTheme) Color.rgb(0, 230, 118) else Color.rgb(10, 144, 66)
                     }
                 } else {
-                    getThemeAdjustedColor(batteryChargingColor)
+                    batteryChargingColor
                 }
                 val beamAlpha = (245 * tracerAlpha).toInt().coerceIn(0, 255)
                 val beamColor = Color.argb(
