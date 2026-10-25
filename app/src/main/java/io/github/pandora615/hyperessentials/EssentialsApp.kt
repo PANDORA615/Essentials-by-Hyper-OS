@@ -40,6 +40,17 @@ class EssentialsApp : Application() {
         super.onCreate()
         io.github.pandora615.hyperessentials.data.repository.SettingsRepository(this).syncTorchRestriction()
         context = applicationContext
+        // One-time upgrade: show the island on a lit lock screen, with message text concealed.
+        val islandPrefs = getSharedPreferences(SettingsRepository.PREFS_NAME, MODE_PRIVATE)
+        if (!islandPrefs.getBoolean("hyper_lock_notifications_v040", false)) {
+            val editor = islandPrefs.edit()
+            if (islandPrefs.getString(SettingsRepository.KEY_ISLAND_SHOW_WHEN, null) != SettingsRepository.ISLAND_SHOW_WHEN_ALWAYS) {
+                editor.putString(SettingsRepository.KEY_ISLAND_SHOW_WHEN, SettingsRepository.ISLAND_SHOW_WHEN_SCREEN_ON)
+            }
+            editor.putBoolean(SettingsRepository.KEY_ISLAND_NOTIF_DISABLE_LOCKED, false)
+                .putBoolean(SettingsRepository.KEY_ISLAND_NOTIF_CONCEAL_LOCKED, true)
+                .putBoolean("hyper_lock_notifications_v040", true).apply()
+        }
         io.github.pandora615.hyperessentials.utils.HapticUtil.initialize(this)
 
         try {

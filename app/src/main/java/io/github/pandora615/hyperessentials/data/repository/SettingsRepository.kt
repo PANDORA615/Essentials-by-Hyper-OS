@@ -4062,7 +4062,7 @@ class SettingsRepository(
 
     fun getIslandShowWhen(): String =
         getString(KEY_ISLAND_SHOW_WHEN, null)
-            ?: if (isIslandHideWhenScreenOffEnabled()) ISLAND_SHOW_WHEN_UNLOCKED else ISLAND_SHOW_WHEN_ALWAYS
+            ?: if (isIslandHideWhenScreenOffEnabled()) ISLAND_SHOW_WHEN_SCREEN_ON else ISLAND_SHOW_WHEN_ALWAYS
     fun setIslandShowWhen(value: String) = putString(KEY_ISLAND_SHOW_WHEN, value)
 
     fun getIslandTimeoutMs(): Long = getLong(KEY_ISLAND_TIMEOUT_MS, 4500L)

@@ -168,6 +168,7 @@ class NotificationsPlugin : BaseIslandPlugin() {
             c.request(PluginRequest.Expand(ITEM_KEY))
         }
     }
+    private val deferredLocked = DeferredNotifications<ActiveNotificationAlert>()
     private var registered = false
     private var autoExpanded = false
 
@@ -201,6 +202,7 @@ class NotificationsPlugin : BaseIslandPlugin() {
     }
 
     override fun onStop() {
+        deferredLocked.clear()
         if (registered) {
             NotificationListener.removeNotificationAlertListener(listener)
             registered = false
@@ -282,7 +284,13 @@ class NotificationsPlugin : BaseIslandPlugin() {
         render()
     }
 
+    private fun deliverDeferred() {
+        if (ctx?.isContentSuppressed?.invoke() != false || lockedOut()) return
+        deferredLocked.drain().forEach { onPosted(it) }
+    }
+
     override fun onSuppressionChanged(suppressed: Boolean) {
+        if (!suppressed) deliverDeferred()
         val c = ctx ?: return
         if (suppressed) {
             if (catchingUp) {
@@ -305,6 +313,7 @@ class NotificationsPlugin : BaseIslandPlugin() {
     }
 
     override fun onScreenStateChanged() {
+        deliverDeferred()
         if (hub()) {
             syncHub()
             return
@@ -332,12 +341,12 @@ class NotificationsPlugin : BaseIslandPlugin() {
     private fun maskOtp(code: String) = formatOtp(code).map { if (it == ' ') ' ' else '•' }.joinToString("")
 
     private fun lockedOut(): Boolean =
-        settings.getBoolean(SettingsRepository.KEY_ISLAND_NOTIF_DISABLE_LOCKED, true) &&
+        settings.getBoolean(SettingsRepository.KEY_ISLAND_NOTIF_DISABLE_LOCKED, false) &&
             ((context.getSystemService(Context.KEYGUARD_SERVICE) as? KeyguardManager)?.isKeyguardLocked == true ||
                 (context.getSystemService(Context.POWER_SERVICE) as? PowerManager)?.isInteractive == false)
 
     private fun concealed(): Boolean =
-        settings.getBoolean(SettingsRepository.KEY_ISLAND_NOTIF_CONCEAL_LOCKED, false) &&
+        settings.getBoolean(SettingsRepository.KEY_ISLAND_NOTIF_CONCEAL_LOCKED, true) &&
             (context.getSystemService(Context.KEYGUARD_SERVICE) as? KeyguardManager)?.isKeyguardLocked == true
 
     private fun onPosted(alert: ActiveNotificationAlert) {
@@ -345,6 +354,11 @@ class NotificationsPlugin : BaseIslandPlugin() {
         if (alert.hubOnly) {
             if (hub()) addSilently(alert)
             return
+        }
+        if ((c.isContentSuppressed() || lockedOut()) && settings.isIslandShowNotificationsEnabled() && passesFilters(alert)) {
+            val pm = context.getSystemService(Context.POWER_SERVICE) as? PowerManager
+            val km = context.getSystemService(Context.KEYGUARD_SERVICE) as? KeyguardManager
+            if (pm?.isInteractive == false || km?.isKeyguardLocked == true) deferredLocked.put(alert.key, alert)
         }
         if (c.isContentSuppressed() || lockedOut() || !settings.isIslandShowNotificationsEnabled() || !passesFilters(alert)) {
             if (hub()) addSilently(alert)
@@ -418,6 +432,7 @@ class NotificationsPlugin : BaseIslandPlugin() {
     }
 
     private fun onRemoved(key: String) {
+        deferredLocked.remove(key)
         val index = alerts.indexOfFirst { it.key == key }
         if (index < 0) return
         val removed = alerts.removeAt(index).also { seen.remove(it.key) }

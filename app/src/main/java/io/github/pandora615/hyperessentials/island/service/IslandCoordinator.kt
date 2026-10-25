@@ -173,7 +173,7 @@ class IslandCoordinator(
     private var foregroundPackage: String? = null
     private var textInputActive = false
 
-    private val isWindowSuppressed get() = (isFullscreenApp && !settings.isIslandKeepInFullscreenEnabled()) ||
+    private val isWindowSuppressed get() = (isFullscreenApp && !settings.isIslandKeepInFullscreenEnabled() && keyguardManager?.isKeyguardLocked != true) ||
         if (settings.isFoldableDevice()) {
             settings.isIslandHiddenInCurrentOrientation()
         } else {

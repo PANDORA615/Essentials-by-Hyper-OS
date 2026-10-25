@@ -1027,12 +1027,12 @@ fun IslandNotificationSettingsUI(
     var showOtpPermissions by remember { mutableStateOf(false) }
     var lockedDisabled by remember {
         mutableStateOf(
-            SettingsRepository(context).getBoolean(SettingsRepository.KEY_ISLAND_NOTIF_DISABLE_LOCKED, true)
+            SettingsRepository(context).getBoolean(SettingsRepository.KEY_ISLAND_NOTIF_DISABLE_LOCKED, false)
         )
     }
     var concealed by remember {
         mutableStateOf(
-            SettingsRepository(context).getBoolean(SettingsRepository.KEY_ISLAND_NOTIF_CONCEAL_LOCKED, false)
+            SettingsRepository(context).getBoolean(SettingsRepository.KEY_ISLAND_NOTIF_CONCEAL_LOCKED, true)
         )
     }
     // A notification can only peek as a line while Behavior's island-wide Line peek is on.
