@@ -1965,4 +1965,10 @@
     <string name="hyper_heads_up_retry">Применить повторно</string>
     <string name="hyper_hide_tray_title">Только в Dynamic Island</string>
     <string name="hyper_hide_tray_desc">Убирать обычные уведомления из шторки после передачи в островок. Вернуть удалённые уведомления в шторку нельзя. Музыка, звонки и обязательные служебные уведомления остаются.</string>
+    <string name="hyper_focus_active">Фокусные уведомления Xiaomi: разрешение отключено и проверено для %1$d приложений.</string>
+    <string name="hyper_focus_working">Применение разрешений фокусных уведомлений Xiaomi…</string>
+    <string name="hyper_focus_permission">Фокусные уведомления Xiaomi: подключите Shizuku или root для применения или восстановления разрешений.</string>
+    <string name="hyper_focus_partial">Фокусные уведомления Xiaomi: часть изменений не подтверждена. Подключите Shizuku и повторите попытку.</string>
+    <string name="hyper_focus_unsupported">Прошивка не предоставила интерфейс фокусных уведомлений Xiaomi. Отключение системного островка не подтверждено.</string>
+    <string name="hyper_focus_idle">Подавление фокусных уведомлений Xiaomi выключено; сохранённые разрешения возвращаются при наличии доступа.</string>
 </resources>

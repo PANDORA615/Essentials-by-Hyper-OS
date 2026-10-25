@@ -115,7 +115,7 @@ android {
         applicationId = "io.github.pandora615.hyperessentials"
         minSdk = 26
         targetSdk = 37
-        versionCode = 7
+        versionCode = 8
         versionName = "0.5.1"
 
         val whatsNewCounter = 8

@@ -31,6 +31,7 @@ object IslandHeadsUpController {
 
     fun request(context: Context, suppress: Boolean) {
         val app = context.applicationContext
+        XiaomiFocusController.sync(app)
         requested = suppress
         scope.launch {
             mutex.withLock {

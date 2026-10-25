@@ -3610,4 +3610,10 @@
     <string name="hyper_heads_up_retry">Apply again</string>
     <string name="hyper_hide_tray_title">Only in Dynamic Island</string>
     <string name="hyper_hide_tray_desc">Dismiss ordinary notifications from the shade after copying to the island. Dismissed notifications cannot be restored to the shade. Media, calls and required service notifications remain.</string>
+    <string name="hyper_focus_active">Xiaomi focus notifications: permission disabled and verified for %1$d apps.</string>
+    <string name="hyper_focus_working">Applying Xiaomi focus notification permissions…</string>
+    <string name="hyper_focus_permission">Xiaomi focus notifications: connect Shizuku or root to apply or restore permissions.</string>
+    <string name="hyper_focus_partial">Xiaomi focus notifications: some permissions could not be verified. Reconnect Shizuku and retry.</string>
+    <string name="hyper_focus_unsupported">This firmware did not expose the Xiaomi focus permission interface. System island suppression is not confirmed.</string>
+    <string name="hyper_focus_idle">Xiaomi focus suppression is off; saved permissions are restored when access is available.</string>
 </resources>

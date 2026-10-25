@@ -19,6 +19,7 @@ import io.github.pandora615.hyperessentials.R
 fun IslandHeadsUpStatus() {
     val context = LocalContext.current
     val status by IslandHeadsUpController.status.collectAsState()
+    val focus by XiaomiFocusController.state.collectAsState()
     LaunchedEffect(Unit) { IslandHeadsUpController.sync(context) }
     Column(Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
         Text(stringResource(when (status) {
@@ -29,6 +30,17 @@ fun IslandHeadsUpStatus() {
             IslandHeadsUpController.Status.FAILED -> R.string.hyper_heads_up_failed
             IslandHeadsUpController.Status.RESTORE_FAILED -> R.string.hyper_heads_up_restore_failed
         }), style = MaterialTheme.typography.bodySmall)
+        Text(stringResource(when (focus.status) {
+            "active" -> R.string.hyper_focus_active
+            "working" -> R.string.hyper_focus_working
+            "permission" -> R.string.hyper_focus_permission
+            "partial" -> R.string.hyper_focus_partial
+            "unsupported" -> R.string.hyper_focus_unsupported
+            else -> R.string.hyper_focus_idle
+        }, focus.count), style = MaterialTheme.typography.bodySmall)
+        TextButton(onClick = { XiaomiFocusController.sync(context) }) {
+            Text(stringResource(R.string.hyper_heads_up_retry))
+        }
         if (status != IslandHeadsUpController.Status.ACTIVE && status != IslandHeadsUpController.Status.OFF) {
             TextButton(onClick = { IslandHeadsUpController.sync(context) }) {
                 Text(stringResource(R.string.hyper_heads_up_retry))
